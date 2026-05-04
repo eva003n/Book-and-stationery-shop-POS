@@ -332,7 +332,7 @@ The POS uses a **local-first** approach:
 2. A background sync worker pushes changes to the server
 3. The server resolves conflicts using **last-write-wins with vector clocks** for non-financial data, and **append-only immutable records** for transactions
 
-### 4.2 Sync F]low
+### 4.2 Sync Flow
 
 ```
 [Cashier Action]
