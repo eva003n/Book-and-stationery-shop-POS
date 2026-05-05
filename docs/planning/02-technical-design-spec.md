@@ -92,7 +92,7 @@ Each shop installation has:
 
 | Concern | Technology | Rationale |
 |---|---|---|
-| UI Framework | React 18 + TypeScript | Component reusability across POS, Manager, Admin views |
+| UI Framework | React 19 + TypeScript 5 | Component reusability across POS, Manager, Admin views |
 | State Management | Zustand | Lightweight; works well with offline-first patterns |
 | Styling | Tailwind CSS | Rapid UI development; consistent design tokens |
 | PWA / Offline | Workbox + Service Workers | Background sync, offline caching |
@@ -101,6 +101,13 @@ Each shop installation has:
 | Receipt printing | `escpos-buffer` | ESC/POS command generation for thermal printers |
 | Forms | React Hook Form + Zod | Type-safe validation |
 | Charts | Recharts | Reporting dashboard visualisations |
+
+#### Resources
+##### Service workers
+- [MDN service worker API](https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API)
+- [Workbox](https://developer.chrome.com/docs/workbox)
+- [Vite plugin pwa](https://github.com/vite-pwa/vite-plugin-pwa)
+- [PWA by web.dev](https://web.dev/learn/pwa/getting-started?continue=https%3A%2F%2Fweb.dev%2Flearn%2Fpwa%2F%23article-https%3A%2F%2Fweb.dev%2Flearn%2Fpwa%2Fgetting-started)
 
 ### 2.2 Backend
 
@@ -114,7 +121,7 @@ Each shop installation has:
 | Cache / Queues | Redis 7 | M-Pesa callback queuing; session storage; rate limiting |
 | Job Queue | BullMQ (Redis-backed) | eTIMS transmission queue; SMS queue |
 | Auth | JWT (access) + refresh tokens | Stateless; works offline |
-| API Style | REST + SSE | REST for CRUD; SSE for real-time M-Pesa status |
+| API Style | REST  | REST for CRUD; SSE(Server sent events) for real-time M-Pesa status |
 
 ### 2.3 Infrastructure
 
