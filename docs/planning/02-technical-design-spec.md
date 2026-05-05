@@ -113,15 +113,15 @@ Each shop installation has:
 
 | Concern | Technology | Rationale |
 |---|---|---|
-| Runtime | Node.js 20 LTS | Familiar ecosystem; good async I/O for payment polling |
+| Runtime | Node.js 22 LTS | Familiar ecosystem; good async I/O for payment polling |
 | Framework | Express 5 | Minimal overhead; easy to reason about |
 | Language | JS + TypeScript | End-to-end type safety with shared types package |
 | ORM | Prisma | Schema-first; excellent migration tooling |
-| Primary Database | PostgreSQL 16 | ACID compliance; JSON columns for receipt data |
+| Primary Database | PostgreSQL 18 | ACID compliance; JSON columns for receipt data |
 | Cache / Queues | Redis 7 | M-Pesa callback queuing; session storage; rate limiting |
 | Job Queue | BullMQ (Redis-backed) | eTIMS transmission queue; SMS queue |
 | Auth | JWT (access) + refresh tokens | Stateless; works offline |
-| API Style | REST  | REST for CRUD; SSE(Server sent events) for real-time M-Pesa status |
+| API Style | REST  | REST for CRUD; SSE(Server sent events) for real-time M-Pesa status e.t.c |
 
 ### 2.3 Infrastructure
 
