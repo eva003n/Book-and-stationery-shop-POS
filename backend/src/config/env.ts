@@ -1,11 +1,11 @@
 import { getAbsolutePath } from "../utils";
 
 
-export const NODE_ENV = process.env.NODE_ENV || "development";
+ const env = process.env.NODE_ENV || "development";
 
 if (
-  NODE_ENV  === "development" ||
-  NODE_ENV === "test"
+  env  === "development" ||
+  env  === "test"
 ) {
   const { config } = await import("dotenv");
 
@@ -15,9 +15,9 @@ if (
 
   config({
     path: getAbsolutePath(
-      `../../.env.${NODE_ENV}`,
+      `../../.env.${process.env.NODE_ENV}`,
     ),
   });
 }
 
-export const {BASE_URL, PORT, LOG_LEVEL, DATABASE_URL } = process.env;
+export const {NODE_ENV, BASE_URL, PORT, LOG_LEVEL,LOGTAIL_SOURCE_TOKEN, LOGTAIL_INGESTION_HOST, DATABASE_URL } = process.env;
