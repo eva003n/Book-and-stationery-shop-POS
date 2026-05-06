@@ -6,7 +6,7 @@ import type { Request, RequestHandler, Response } from "express";
 const isProduction = NODE_ENV === "production";
 
 // access custom headers
-morgan.token("request-id", (req, res) => req["x-request-id"]);
+morgan.token("request-id", (req, res) => req.id);
 
 const prodFormat = (
   tokens: TokenIndexer<Request, Response>,
@@ -25,7 +25,7 @@ const prodFormat = (
   });
 };
 
-export const morganMiddleware: RequestHandler = isProduction
+export const logMiddleware: RequestHandler = isProduction
   ? morgan(prodFormat, {
       stream: {
         write: (message) => logger.info(JSON.parse(message)),
