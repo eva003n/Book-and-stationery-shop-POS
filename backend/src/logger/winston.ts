@@ -83,7 +83,7 @@ if (isProduction) {
   const logtail = new Logtail(LOGTAIL_SOURCE_TOKEN as string, {
     endpoint: LOGTAIL_INGESTION_HOST as string,
   });
-  
+
   logTransports.push(new LogtailTransport(logtail));
 }
 const logger = createLogger({
@@ -91,7 +91,6 @@ const logger = createLogger({
   level: LOG_LEVEL || "info",
   format: isProduction ? prodFormat : devFormat,
   transports: logTransports,
-  exitOnError: false,
 });
 
 /* levels

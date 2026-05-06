@@ -10,3 +10,26 @@ server.listen(port, () => {
     `Server running at: ${!isProduction ? BASE_URL + ":" + PORT : BASE_URL} `,
   );
 });
+
+// gracefull shut down
+const shutDown = (exitCode: number) => {
+    logger.info(`Server Shutting down ... `)
+
+    server.close(() => {
+        // close I/O(db connections etc)
+        process.exit(exitCode)
+    })
+}
+process.on("uncaughtException", (err) =>  {
+    logger.error("Uncaught exception", err)
+    setTimeout(() => shutDown(1), 1000);
+    
+})
+
+process.on("unhandledRejection", (err) => {
+    logger.error("Uncaught exception", err );
+    setTimeout(() => shutDown(1), 1000);
+    
+})
+
+
