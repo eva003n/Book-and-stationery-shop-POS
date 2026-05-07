@@ -1,9 +1,13 @@
-import { Request } from "express";
+import { Request, Response } from "express";
 
 declare global {
 namespace Express {
     interface Request {
-        [key: string]: string
+        requestId: string;
+        // [key: string]: string
+    }
+    interface Response {
+        jsonApi<T>(status: number, data: T): this
     }
 }
 
