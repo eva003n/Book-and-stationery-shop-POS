@@ -1,12 +1,8 @@
 import { getAbsolutePath } from "../utils";
 
+const env = process.env.NODE_ENV || "development";
 
- const env = process.env.NODE_ENV || "development";
-
-if (
-  env  === "development" ||
-  env  === "test"
-) {
+if (env === "development" || env === "test") {
   const { config } = await import("dotenv");
 
   config({
@@ -14,9 +10,7 @@ if (
   });
 
   config({
-    path: getAbsolutePath(
-      `../../.env.${process.env.NODE_ENV}`,
-    ),
+    path: getAbsolutePath(`../../.env.${process.env.NODE_ENV}`),
   });
 }
 
@@ -24,6 +18,7 @@ export const {
   NODE_ENV,
   BASE_URL,
   PORT,
+  APP_NAME,
   COOKIE_SECRET,
   CORS_ORIGIN_URLS,
   LOG_LEVEL,
@@ -32,3 +27,4 @@ export const {
   DATABASE_URL,
   API_DOC_URI,
 } = process.env;
+

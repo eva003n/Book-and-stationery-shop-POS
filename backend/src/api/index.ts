@@ -1,5 +1,5 @@
-import { BASE_URL, DATABASE_URL, NODE_ENV, PORT } from "../config/env.js";
-import logger from "../logger/winston.js";
+import { BASE_URL, NODE_ENV, PORT } from "../config/env.js";
+import logger from "../logger/index.js";
 import { server } from "./app.js";
 
 const isProduction = NODE_ENV === "production";
@@ -21,13 +21,13 @@ const shutDown = (exitCode: number) => {
     })
 }
 process.on("uncaughtException", (err) =>  {
-    logger.error("Uncaught exception", err)
+    logger.error(err, "Uncaught exception")
     setTimeout(() => shutDown(1), 1000);
     
 })
 
 process.on("unhandledRejection", (err) => {
-    logger.error("Uncaught exception", err );
+    logger.error(err, "Uncaught exception" );
     setTimeout(() => shutDown(1), 1000);
     
 })

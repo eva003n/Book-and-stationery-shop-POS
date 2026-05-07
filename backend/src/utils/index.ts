@@ -1,6 +1,8 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
+import type { Response } from "express";
+
 
 export const getAbsolutePath = (relativePath: string) => {
   const __fileName = fileURLToPath(import.meta.url);
@@ -14,4 +16,8 @@ export const getAbsolutePath = (relativePath: string) => {
     );
 
   return file;
+};
+
+export const jsonApiResponse = (res: Response, status = 200, data: any) => {
+  return res.status(status).type("application/vnd.api+json").send(data);
 };

@@ -4,15 +4,22 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import compression from "compression"
+import compression from "compression";
 
-import { logMiddleware } from "./middleware/requestLogger.middleware";
-import { requestId } from "./middleware/requestId.middleware";
-import { COOKIE_SECRET, CORS_ORIGIN_URLS } from "../config/env";
-import errorHandlerMiddleware from "./middleware/error.middleware";
-import notFound from "./middleware/notFound.middleware";
+import { COOKIE_SECRET, CORS_ORIGIN_URLS } from "../config/env.js";
+// global middlware
+import { logMiddleware } from "../middleware/log.middleware.js";
+import { requestId } from "../middleware/requestId.middleware.js";
+import errorHandlerMiddleware from "../middleware/error.middleware.js";
+import notFound from "../middleware/notFound.middleware.js";
 
 const app = express();
+
+/* App level setting */
+
+// tell express to trust headers 1 proxy hop(express app -> ngrok -> (eTims + payment gateway)) as client
+app.set("trust proxy", 1);
+
 // Security
 app.use(
   cors({
@@ -38,15 +45,23 @@ app.use(
   }),
 );
 
+// data exchange(validate content type and accept header)
+// app.use(jsonApiMiddleware)
 
 // Parsing
 app.use(cookieParser(COOKIE_SECRET?.split(",")));
-app.use(express.json({
-    limit: "16kb"
-}));
+app.use(
+  express.json({
+    limit: "16kb",
+  }),
+);
 app.use(express.urlencoded({ extended: false }));
+// jsonapi spec adherance
+// app.response.jsonApi = function (status = 200, data) {
+//   return this.status(status).type("application/vnd.api+json").send(data);
+// };
 // compress request bodies
-app.use(compression())
+app.use(compression());
 
 // Endpoints(Routes)
 
