@@ -1,5 +1,4 @@
 import { API_DOC_URI } from "../config/env.js";
-import { JSON_MIME_TYPE } from "../constants.js";
 import type { ApiErrorObj } from "../validator/validators.js";
 
 class ApiError extends Error {
@@ -150,7 +149,7 @@ class ApiError extends Error {
       type: "/probs/unsupported-media-type",
       title: "Unsupported Media Type",
       status: 415,
-      detail: `Content-Type must be ${JSON_MIME_TYPE}`,
+      detail: `Content-Type must be`,
       instance,
       requestId,
     });
@@ -161,7 +160,7 @@ class ApiError extends Error {
       type: "/probs/not-acceptable",
       title: "Not Acceptable",
       status: 406,
-      detail: `Accept header must include ${JSON_MIME_TYPE}`,
+      detail: `Accept header must include`,
       instance,
       requestId,
     });
