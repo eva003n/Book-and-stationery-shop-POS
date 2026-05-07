@@ -1,12 +1,12 @@
 import morgan, { type TokenIndexer } from "morgan";
-import logger from "../../logger/winston.js";
-import { NODE_ENV } from "../../config/env.js";
+import logger from "../logger/index.js";
+import { NODE_ENV } from "../config/env.js";
 import type { Request, RequestHandler, Response } from "express";
 
 const isProduction = NODE_ENV === "production";
 
 // access custom headers
-morgan.token("request-id", (req, res) => req.id);
+morgan.token("request-id", (req, res) => req.requestId);
 
 const prodFormat = (
   tokens: TokenIndexer<Request, Response>,

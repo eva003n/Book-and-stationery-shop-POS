@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
-import ApiError from "../../utils/ApiError.js";
-import logger from "../../logger/winston.js";
+import ApiError from "../utils/ApiError.js";
+import logger from "../logger/index.js";
 
 const errorHandlerMiddleware = (
   err: any,
@@ -12,17 +12,17 @@ const errorHandlerMiddleware = (
     console.dir(err);
 
     return res.type("application/problem+json").status(err.status).json(err);
-  }  else {
+  } else {
     logger.error(err.message);
     // console.dir(err);
     return res
       .type("application/problem+json")
       .status(500)
       .json(
-        ApiError.internalServerError(
-          500,
+        ApiError.internal(
           req.originalUrl,
           "Server error, something went wrong",
+          req.requestId,
         ),
       );
   }
