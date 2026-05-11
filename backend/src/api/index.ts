@@ -1,4 +1,5 @@
 import { BASE_URL, NODE_ENV, PORT } from "../config/env.js";
+import { shutDownRedis } from "../infra/redis/index.js";
 import logger from "../logger/index.js";
 import { server } from "./app.js";
 
@@ -12,11 +13,12 @@ server.listen(port, () => {
 });
 
 // gracefull shut down
-const shutDown = (exitCode: number) => {
+const shutDown = (exitCode: number = 0) => {
     logger.info(`Server Shutting down ... `)
 
     server.close(() => {
-        // close I/O(db connections etc)
+        // close I/O(db, redis connections etc)
+        shutDownRedis()
         process.exit(exitCode)
     })
 }
@@ -32,4 +34,5 @@ process.on("unhandledRejection", (err) => {
     
 })
 
-
+process.on("SIGTERM", shutDown)
+process.on("SIGINT", shutDown)
