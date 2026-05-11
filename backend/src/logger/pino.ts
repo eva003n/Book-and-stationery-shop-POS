@@ -109,8 +109,25 @@ const logger = pino(
     // Static fields added to every log line
     base: { service: APP_NAME, env: NODE_ENV },
 
-    // ISO-ish timestamp matching your Winston format
-    timestamp: pino.stdTimeFunctions.isoTime,
+    // ISO-ish timestamp format
+    // timestamp: pino.stdTimeFunctions.unixTime,
+    timestamp: () => {
+      const now = new Date();
+      const formatted = now
+        .toLocaleString("en-US", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          fractionalSecondDigits: 3,
+          hour12: true,
+        })
+        .replace(",", ""); // "05/07/2026 04:30:22.966 PM"
+
+      return `,"time":"${formatted}"`;
+    },
   },
   pino.transport({ targets }),
 );

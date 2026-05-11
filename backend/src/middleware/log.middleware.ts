@@ -10,7 +10,7 @@ export const logMiddleware: RequestHandler = pinoHttp({
   // add request id for logging
   customProps(req, _res) {
     return {
-      requestId: req.id,
+      requestId: req.requestId,
     };
   },
 
@@ -37,7 +37,7 @@ export const logMiddleware: RequestHandler = pinoHttp({
         url: req.url,
         ip: req.remoteAddress,
         userAgent: req.headers["user-agent"],
-        requestId: req.id,
+        requestId: req.requestId,
       };
     },
     res(res) {
