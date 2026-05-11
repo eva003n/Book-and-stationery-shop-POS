@@ -12,6 +12,7 @@ import { logMiddleware } from "../middleware/log.middleware.js";
 import { requestId } from "../middleware/requestId.middleware.js";
 import errorHandlerMiddleware from "../middleware/error.middleware.js";
 import notFound from "../middleware/notFound.middleware.js";
+import { groupedBoard } from "../queues/index.js";
 
 const app = express();
 
@@ -64,7 +65,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(compression());
 
 // Endpoints(Routes)
-
+app.use("/api/v1/admin/queues", groupedBoard.getRouter())
 // fallback
 app.use(notFound);
 // error handling middleware
