@@ -1,6 +1,5 @@
-import { getAbsolutePath } from "../utils";
-import { envVarSchema } from "../validator/validators";
-
+import { getAbsolutePath } from "../shared/utils";
+import { envVarSchema } from "../shared/validator/validators";
 
 const env = process.env.NODE_ENV || "development";
 
@@ -34,4 +33,4 @@ export const {
   API_DOC_URI,
 } = result.success ? result.data : {};
 
-if(result.error) throw Error(`Missing env variables  ${result.error.message}`)
+if (result.error) throw Error(`Missing env variables  ${result.error.message}`);

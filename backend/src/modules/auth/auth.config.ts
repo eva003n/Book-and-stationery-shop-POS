@@ -9,16 +9,18 @@ import {
   NODE_ENV,
   PORT,
 } from "../../config/env.js";
-import type { BetterAuthSecrets } from "../../validator/validators.js";
+import type { BetterAuthSecrets } from "../../shared/validator/validators.js";
 import { redisStorage } from "@better-auth/redis-storage";
-import  {redisClient}  from "../../infra/redis/index.js";
+import { redisClient } from "../../infra/redis/index.js";
 import { hash, compare } from "bcryptjs";
+
+
 const origins = CORS_ORIGIN_URLS?.split(",");
 const secrets = BETTER_AUTH_SECRETS?.split(",") || [];
 
 const isProduction = NODE_ENV === "production";
 
-export const auth = betterAuth({
+export const authClient = betterAuth({
   database: prismaAdapter(dbClient, {
     provider: "postgresql",
   }),
@@ -130,9 +132,8 @@ export const auth = betterAuth({
     storeIdentifier: "hashed",
   },
 
-
   logger: {
     level: "warn",
-    log: logger.warn
-  }
+    log: logger.warn,
+  },
 });

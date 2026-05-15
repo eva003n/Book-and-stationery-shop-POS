@@ -1,4 +1,4 @@
-import { API_DOC_URI } from "../config/env.js";
+import { API_DOC_URI } from "../../config/env.js";
 import type { ApiErrorObj } from "../validator/validators.js";
 
 class ApiError extends Error {

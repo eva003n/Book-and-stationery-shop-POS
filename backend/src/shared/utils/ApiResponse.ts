@@ -13,6 +13,5 @@ class ApiResponse {
     this.meta = obj.meta;
   }
 }
-  
-  export default ApiResponse;
-  
+
+export default ApiResponse;

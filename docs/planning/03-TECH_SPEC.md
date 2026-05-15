@@ -241,66 +241,141 @@ export function useBarcodeScanner(onScan: (barcode: string) => void) {
 ---
 
 ## 3. Backend Architecture
+Uses a modular monolith structure so thta its easier to scale to a microservice architecture in the future future
 
 ### 3.1 Technology Stack
 
 | Component | Technology | Version |
 |---|---|---|
 | Runtime | Node.js | 22 LTS |
-| Framework | Express.js | 4.x |
+| Framework | Express.js | 5.x |
 | Language | TypeScript | 5.x |
 | ORM | Prisma | 5.x |
-| Auth | JWT + Refresh tokens | jsonwebtoken 9.x |
-| Job queue | BullMQ | 5.x |
+| Auth(Better Auth) | JWT + Refresh tokens | jsonwebtoken 9.x |
+| Task queue | BullMQ | 5.x |
 | Scheduler | node-cron | 3.x |
 | Validation | Zod | 3.x |
-| Logging | Pino | 9.x |
+| Logging | Pino + pino-http | 9.x |
 | Testing | Vitest + Supertest | Latest |
 
 ### 3.2 Folder Structure
 
 ```
-src/
-├── routes/
-│   ├── auth.ts
-│   ├── sales.ts
-│   ├── products.ts
-│   ├── customers.ts
-│   ├── suppliers.ts
-│   ├── inventory.ts
-│   ├── payments.ts
-│   ├── reports.ts
-│   ├── sync.ts
-│   └── webhooks/
-│       ├── mpesa.ts      # Daraja C2B + STK callback
-│       └── etims.ts      # eTIMS status callbacks
-├── services/
-│   ├── SaleService.ts
-│   ├── InventoryService.ts
-│   ├── MpesaService.ts
-│   ├── EtimsService.ts
-│   ├── SmsService.ts
-│   ├── ReportService.ts
-│   └── SyncService.ts
-├── middleware/
-│   ├── auth.ts           # JWT verification
-│   ├── rbac.ts           # Role-based access
-│   ├── tenant.ts         # Tenant schema injection
-│   ├── rateLimit.ts      # Redis-backed rate limiting
-│   └── validate.ts       # Zod schema validation
-├── jobs/
-│   ├── etimsRetry.ts     # Retry failed eTIMS submissions
-│   ├── smsAlerts.ts      # Low-stock and debt reminders
-│   ├── backup.ts         # Daily backup to B2/S3
-│   └── reports.ts        # Daily summary generation
-├── lib/
-│   ├── db.ts             # Prisma client singleton
-│   ├── redis.ts          # Redis client
-│   ├── queue.ts          # BullMQ setup
-│   └── logger.ts         # Pino instance
-└── prisma/
-    ├── schema.prisma
-    └── migrations/
+├── nodemon.json
+├── package.json
+├── pnpm-lock.yaml
+├── prisma.config.ts
+├── src
+│   ├── api
+│   │   ├── app.ts
+│   │   └── index.ts
+│   ├── config
+│   │   ├── env.ts
+│   │   └── redis.ts
+│   ├── infra
+│   │   ├── db
+│   │   │   └── index.ts
+│   │   └── redis
+│   │       ├── auth.ts
+│   │       ├── bullmq.ts
+│   │       ├── cache.ts
+│   │       └── index.ts
+│   ├── logger
+│   │   ├── index.ts
+│   │   ├── pino.ts
+│   │   └── winston.ts
+│   ├── middleware
+│   │   ├── error.middleware.ts
+│   │   ├── log.middleware.ts
+│   │   ├── notFound.middleware.ts
+│   │   ├── requestId.middleware.ts
+│   │   └── requestLogger.middleware.ts
+│   ├── modules
+│   │   ├── auth
+│   │   │   ├── auth.config.ts
+│   │   │   ├── auth.module.ts
+│   │   │   ├── controllers
+│   │   │   ├── dto
+│   │   │   ├── jobs
+│   │   │   ├── repository
+│   │   │   ├── routes
+│   │   │   ├── services
+│   │   │   └── validators
+│   │   ├── customers
+│   │   │   ├── controllers
+│   │   │   ├── customers.module.ts
+│   │   │   ├── dto
+│   │   │   ├── jobs
+│   │   │   ├── repository
+│   │   │   ├── routes
+│   │   │   ├── services
+│   │   │   └── validators
+│   │   ├── etims
+│   │   │   ├── controllers
+│   │   │   ├── dto
+│   │   │   ├── etims.module.ts
+│   │   │   ├── jobs
+│   │   │   ├── repository
+│   │   │   ├── routes
+│   │   │   ├── services
+│   │   │   └── validators
+│   │   ├── inventory
+│   │   │   ├── controllers
+│   │   │   ├── dto
+│   │   │   ├── inventory.module.ts
+│   │   │   ├── jobs
+│   │   │   ├── repository
+│   │   │   ├── routes
+│   │   │   ├── services
+│   │   │   └── validators
+│   │   ├── payments
+│   │   │   ├── controllers
+│   │   │   ├── dto
+│   │   │   ├── jobs
+│   │   │   ├── payments.module.ts
+│   │   │   ├── repository
+│   │   │   ├── routes
+│   │   │   ├── services
+│   │   │   └── validators
+│   │   ├── reports
+│   │   │   ├── controllers
+│   │   │   ├── dto
+│   │   │   ├── jobs
+│   │   │   ├── reports.module.ts
+│   │   │   ├── repository
+│   │   │   ├── routes
+│   │   │   ├── services
+│   │   │   └── validators
+│   │   ├── sales
+│   │   │   ├── controllers
+│   │   │   ├── dto
+│   │   │   ├── jobs
+│   │   │   ├── repository
+│   │   │   ├── routes
+│   │   │   ├── sales.module.ts
+│   │   │   ├── services
+│   │   │   └── validators
+│   │   ├── suppliers
+│   │   ├── sync
+│   │   └── users
+│   ├── queues
+│   │   └── index.ts
+│   ├── shared
+│   │   ├── utils
+│   │   │   ├── ApiError.ts
+│   │   │   ├── ApiResponse.ts
+│   │   │   ├── asynchandler.ts
+│   │   │   └── index.ts
+│   │   └── validator
+│   │       └── validators.ts
+│   ├── types
+│   │   ├── express
+│   │   │   └── index.d.ts
+│   │   └── http
+│   │       └── index.d.ts
+│   └── workers
+└── tsconfig.json
+
 ```
 
 ### 3.3 Tenant Middleware
@@ -345,7 +420,6 @@ export const requirePermission = (perm: Permission) =>
     return res.status(403).json({ error: 'Insufficient permissions' })
   }
 ```
-
 ---
 
 ## 4. Database Design
@@ -381,11 +455,11 @@ CREATE TABLE products (
 CREATE TABLE inventory (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id      UUID NOT NULL REFERENCES products(id),
-  branch_id       UUID NOT NULL REFERENCES branches(id),
+  branch_id       UUID NOT NULL REFERENCES branch.es(id),
   quantity        INTEGER NOT NULL DEFAULT 0,
   reserved        INTEGER NOT NULL DEFAULT 0,  -- reserved for pending orders
   UNIQUE (product_id, branch_id)
-);
+);ar
 
 -- Sales
 CREATE TABLE sales (
@@ -490,7 +564,7 @@ CREATE TABLE payments (
   mpesa_receipt   VARCHAR(20),
   confirmed_at    TIMESTAMPTZ,
   created_at      TIMESTAMPTZ DEFAULT NOW()
-);
+);]
 
 -- eTIMS Records
 CREATE TABLE etims_records (

@@ -13,8 +13,8 @@ export const serverAdapter = new ExpressAdapter();
 // import created queues
 
 //  create dashboard
-createBullBoard({
-//   queues: [new BullMQAdapter(/* queue instance */)],
+/* createBullBoard({
+
   serverAdapter,
   options: {
     uiConfig: {
@@ -27,7 +27,7 @@ createBullBoard({
         ]
     }
   }
-});
+}); */
 
 type QueueGroup = {
     name: string,
@@ -55,9 +55,20 @@ class GroupedBullBoard {
         )
 
         createBullBoard({
-            queues: adapters,
-            serverAdapter: this.serverAdapter
-        })
+          queues: adapters,
+          serverAdapter: this.serverAdapter,
+          options: {
+            uiConfig: {
+              boardTitle: APP_NAME as string,
+              miscLinks: [
+                {
+                  text: "Documentation",
+                  url: API_DOC_URI as string,
+                },
+              ],
+            },
+          },
+        });
     }
 
     getRouter() {

@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import ApiError from "../utils/ApiError";
+import ApiError from "../shared/utils/ApiError";
 
 const notFound = async (req: Request, res: Response, next: NextFunction) => {
   res
