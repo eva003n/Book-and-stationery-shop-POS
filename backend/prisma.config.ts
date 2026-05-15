@@ -13,9 +13,9 @@ if (NODE_ENV === "development" || NODE_ENV === "test") {
 }
 
 export default defineConfig({
-  schema: "schema.prisma",
+  schema: "prisma/schema.prisma",
   migrations: {
-    path: "src/prisma/migrations",
+    path: "prisma/migrations",
   },
   datasource: {
     url: env("DATABASE_URL")
