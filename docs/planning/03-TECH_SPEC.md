@@ -423,6 +423,7 @@ export const requirePermission = (perm: Permission) =>
 ---
 
 ## 4. Database Design
+Since this is a multi-tenant archhitecture each tenant(shop owner) gets their own schema(multi-schema for strategy for isolation) but they share the same database
 
 ### 4.1 Core Schema (PostgreSQL — per-tenant schema)
 
