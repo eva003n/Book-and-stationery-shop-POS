@@ -6,12 +6,71 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
+  schemas = ["global" "public"]
 }
 
+model Tenant {
+  id              String   @id @default(uuid())
+  name            String
+  businessName    String   @map("business_name")
+  email           String   @unique
+  phoneNumber     string   @unique @map("phone_number)
+  kraPin          String   @map("kra_pin")
+  mpesaShortcode  Int      @map("mpesa_shortcode")
+  consumerKey        String   @map("consumer_key")
+  consumerSecret  String   @map("consumer_secret")
+
+  schemaName      String   @unique @map("schema_name") // isolation key
+
+  plan            String   @default("starter")
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("tenants")
+  @@schema("global")
+}
+
+model Permission {
+  id      string @id @default(uuid())
+  resource      string 
+  action      string 
+  roleTemplatePermissions RoleTemplatePermission[]
+  createdAt   DateTime @default(now()) @map("created_at)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([resource, action])
+  @@map("permissions")
+  @@schema("global")
+}
+
+model RoleTemplate {
+  id          String @id @default(uuid())
+  name        String @unique
+  description String?
+
+  roleTemplatePermissions RoleTemplatePermission[]
+
+  @@map("role_templates")
+  @@schema("global")
+}
+
+model RoleTemplatePermission {
+  roleTemplateId String @map("role_template_id")
+  permissionId   String @map("permission_id")
+
+  roleTemplate RoleTemplate @relation(fields: [roleTemplateId], references: [id])
+  permission   Permission   @relation(fields: [permissionId], references: [id])
+
+  @@id([roleTemplateId, permissionId])
+  @@map("role_template_permissions")
+  @@schema("global")
+}
 model User {
   id            String    @id
   name          String
