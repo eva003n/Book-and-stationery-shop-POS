@@ -7,7 +7,7 @@ const connectionString = DATABASE_URL;
 
 const adapter = new PrismaPg({ connectionString });
 
-const clients = new Map<string, PrismaClient>()
+export const clients = new Map<string, PrismaClient>()
 
 export const getTenantClient = (schemaName: string ) => {
     // reuse client if it exists
@@ -16,27 +16,22 @@ export const getTenantClient = (schemaName: string ) => {
 
     }
 
-    const client = new PrismaClient({
-      datasources: {
-        db: {
-          url: DATABASE_URL,
-        },
-      },
-    }).$extends({
+    const client = new PrismaClient({adapter}).$extends({
         // intercept queries to enable multi-schema tenancy
       query: {
         $allOperations: async ({ args, query }) => {
           await client.$executeRawUnsafe(
-            `SET search_path TO "${schemaName}", global, public`,
+            `SET search_path TO "${schemaName}", public`,
           );
           return query(args);
         },
       },
     }) as unknown as PrismaClient;
 
-    // cache it for reuse
+    // cache it for reuse(avoid creating a new one on every request)
     clients.set(schemaName, client)
 
     // return created client
     return client
 }
+
