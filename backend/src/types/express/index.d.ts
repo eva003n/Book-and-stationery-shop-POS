@@ -1,14 +1,17 @@
 import { Request, Response } from "express";
+import { dbClient } from "../../infra/db/index.js";
 
 declare global {
-namespace Express {
+  namespace Express {
     interface Request {
-        requestId: string;
-        // [key: string]: string
+      requestId: string;
+      tenant?: { schemaName: string; id: string };
+      user?: { id: string; permissions: string[] };
+      db?: ReturnType<typeof dbClient.getTenantClient>;
+      // [key: string]: string
     }
     interface Response {
-        jsonApi<T>(status: number, data: T): this
+      jsonApi<T>(status: number, data: T): this;
     }
-}
-
+  }
 }
