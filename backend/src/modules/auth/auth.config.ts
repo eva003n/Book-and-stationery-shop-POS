@@ -21,7 +21,7 @@ const secrets = BETTER_AUTH_SECRETS?.split(",") || [];
 const isProduction = NODE_ENV === "production";
 
 export const authClient = betterAuth({
-  database: prismaAdapter(dbClient, {
+  database: prismaAdapter(dbClient.main, {
     provider: "postgresql",
   }),
   baseURL: `${!isProduction ? BASE_URL + ":" + PORT : BASE_URL}`,
@@ -105,10 +105,16 @@ export const authClient = betterAuth({
       userId: "user_id",
     },
     expiresIn: 604800, // 7 days
-    updateAge: 900, // 15 minutes
+    updateAge: 86400, // 1 day
     cookieCache: {
       enabled: true,
-      maxAge: 900,
+      maxAge: 86400,
+      strategy: "jwt", // enable jwt sessions
+      refreshCache: {
+        updateAge: 60, // update 60 seconds before expiry
+        version: "1"
+      }
+
     },
   },
 
