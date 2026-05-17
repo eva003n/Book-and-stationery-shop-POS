@@ -33,7 +33,7 @@ model Tenant {
   updatedAt       DateTime @updatedAt @map("updated_at")
 
   @@map("tenants")
-  @@schema("global")
+  @@schema("public")
 }
 
 model Permission {
@@ -46,7 +46,7 @@ model Permission {
 
   @@unique([resource, action])
   @@map("permissions")
-  @@schema("global")
+  @@schema("public")
 }
 
 model RoleTemplate {
@@ -57,7 +57,7 @@ model RoleTemplate {
   roleTemplatePermissions RoleTemplatePermission[]
 
   @@map("role_templates")
-  @@schema("global")
+  @@schema("public")
 }
 
 model RoleTemplatePermission {
@@ -69,7 +69,8 @@ model RoleTemplatePermission {
 
   @@id([roleTemplateId, permissionId])
   @@map("role_template_permissions")
-  @@schema("global")
+  @@schema("public")
+  
 }
 model User {
   id            String    @id
@@ -84,12 +85,13 @@ model User {
 
   @@unique([email])
   @@map("user")
+  @@schema("public")
 }
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     Stringg
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -100,6 +102,8 @@ model Session {
   @@unique([token])
   @@index([userId])
   @@map("session")
+  @@schema("public")
+
 }
 
 model Account {
@@ -120,6 +124,8 @@ model Account {
 
   @@index([userId])
   @@map("account")
+  @@schema("public")
+
 }
 
 model Verification {
@@ -132,6 +138,7 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+  @@schema("public")
 }
 
 model Users {
@@ -148,6 +155,7 @@ model Users {
 
   @@unique([emailAddress])
   @@map("users")
+  @@schema("public")
 }
 
 model Accounts {
@@ -168,4 +176,5 @@ model Accounts {
 
   @@index([user_id])
   @@map("accounts")
+  @@schema("public")
 }
