@@ -7,11 +7,14 @@ if (env === "development" || env === "test") {
   const { config } = await import("dotenv");
 
   config({
-    path: getAbsolutePath("../../.env"),
+    path: getAbsolutePath(import.meta.url, "../../.env"),
   });
 
   config({
-    path: getAbsolutePath(`../../.env.${process.env.NODE_ENV}`),
+    path: getAbsolutePath(
+      import.meta.url,
+      `../../.env.${process.env.NODE_ENV}`,
+    ),
   });
 }
 
