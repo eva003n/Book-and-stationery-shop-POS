@@ -3,16 +3,15 @@ import { fileURLToPath } from "node:url";
 import { existsSync } from "node:fs";
 import type { Response } from "express";
 
-
-export const getAbsolutePath = (relativePath: string) => {
-  const __fileName = fileURLToPath(import.meta.url);
+export const getAbsolutePath = (fileUrl: string, relativePath: string) => {
+  const __fileName = fileURLToPath(fileUrl);
   const __dirName = dirname(__fileName);
 
   const file = resolve(__dirName, relativePath);
 
   if (!existsSync(file))
     throw new Error(
-      `No .env, .env.development, .env.production files in CWD: ${file}`,
+      `No .env, .env.development, .env.production files at resolved path: ${file}`,
     );
 
   return file;
