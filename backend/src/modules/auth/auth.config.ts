@@ -1,5 +1,6 @@
 import { betterAuth, logger } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import {jwt,  organization } from "better-auth/plugins";
 import { dbClient } from "../../infra/db/index.js";
 import {
   APP_NAME,
@@ -51,7 +52,7 @@ export const authClient = betterAuth({
     revokeSessionsOnPasswordReset: true,
     password: {
       hash: async (password) => await hash(password, 12),
-      verify: async ({ hash, password }) => await compare(hash, password),
+      verify: async ({ hash, password }) => await compare(password, hash),
     },
   },
   socialProviders: {
@@ -63,6 +64,22 @@ export const authClient = betterAuth({
     } */
   },
 
+  plugins: [
+    // enable better auth to adapt to multi-tenant architecture
+    organization(
+      {
+      
+      allowUserToCreateOrganization: async(user) => true, // custom logic to determine which users are allowed to create organizations(only owner)
+      schema: {
+        organization: {
+          modelName: "Tenant",
+        },
+        members: {
+          modelName: "User"
+        }
+      }
+    })
+  ],
   user: {
     modelName: "users",
     fields: {
@@ -74,6 +91,7 @@ export const authClient = betterAuth({
         type: "boolean",
         defaultValue: true,
       },
+      roleId: "string",
       metadata: {
         type: "json",
       },
@@ -103,12 +121,13 @@ export const authClient = betterAuth({
     modelName: "sessions",
     fields: {
       userId: "user_id",
+      tenantId: "tenant_id"
     },
-    expiresIn: 604800, // 7 days
-    updateAge: 86400, // 1 day
+    expiresIn:  60 * 60 * 8, // 8 hours operation/day
+    updateAge: 60 * 60, // 1 hour 
     cookieCache: {
       enabled: true,
-      maxAge: 86400,
+      maxAge: 60 * 5,
       strategy: "jwt", // enable jwt sessions
       refreshCache: {
         updateAge: 60, // update 60 seconds before expiry
