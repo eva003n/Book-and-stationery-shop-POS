@@ -14,12 +14,11 @@ datasource db {
   schemas = ["global" "public"]
 }
 
+// organization
 model Tenant {
   id              String   @id @default(uuid())
   name            String
-  businessName    String   @map("business_name")
   email           String   @unique
-  phoneNumber     string   @unique @map("phone_number)
   kraPin          String   @map("kra_pin")
   mpesaShortcode  Int      @map("mpesa_shortcode")
   consumerKey        String   @map("consumer_key")
@@ -38,8 +37,8 @@ model Tenant {
 
 model Permission {
   id      string @id @default(uuid())
-  resource      string 
-  action      string 
+  resource    String 
+  action      String 
   roleTemplatePermissions RoleTemplatePermission[]
   createdAt   DateTime @default(now()) @map("created_at)
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -73,9 +72,12 @@ model RoleTemplatePermission {
   
 }
 model User {
-  id            String    @id
+  id            String    @id @default(uuid())
+  tenant        Tenant?   @relation(field: [tenantId], references: [id])
+  tenantId      String?   @map("tenant_id")   
   name          String
   email         String
+  phoneNumber   String?   @unique @map("phone_number)
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
