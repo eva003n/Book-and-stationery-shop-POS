@@ -1,12 +1,12 @@
 import { API_DOC_URI } from "../../config/env.js";
-import type { ApiErrorObj } from "../validator/validators.js";
+import type { ApiErrorObj, ApiErrors } from "../validator/validators.js";
 
 class ApiError extends Error {
   type: string;
   title: string;
   status: number;
   detail: string;
-  errors?: Array<Record<string, unknown>> | undefined;
+  errors?: ApiErrors | undefined;
   instance: string;
   requestId?: string | undefined;
 
@@ -40,7 +40,7 @@ class ApiError extends Error {
   static badRequest(
     instance: string,
     detail = "Bad Request",
-    errors: Array<Record<string, unknown>>,
+    errors: ApiErrors | undefined,
     requestId?: string,
   ) {
     return ApiError.create({
@@ -98,7 +98,7 @@ class ApiError extends Error {
   static conflict(
     instance: string,
     detail = "Conflict occurred",
-    errors: Array<Record<string, unknown>>,
+    errors: ApiErrors | undefined,
     requestId?: string,
   ) {
     return ApiError.create({
@@ -115,7 +115,8 @@ class ApiError extends Error {
   static unprocessable(
     instance: string,
     detail = "Validation failed",
-    errors: Array<Record<string, unknown>>,
+    errors: ApiErrors | undefined,
+
     requestId?: string,
   ) {
     return ApiError.create({
