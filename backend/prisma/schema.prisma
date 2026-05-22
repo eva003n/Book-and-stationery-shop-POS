@@ -4,44 +4,50 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
   previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
-  schemas = ["public"]
+  schemas  = ["public"]
 }
 
 // organization
+
 model Tenant {
-  id              String   @id @default(uuid())
-  name            String
-  email           String   @unique
-  kraPin          String   @map("kra_pin")
-  mpesaShortcode  Int      @map("mpesa_shortcode")
-  consumerKey        String   @map("consumer_key")
-  consumerSecret  String   @map("consumer_secret")
+  id             String @id @default(uuid())
+  name           String
+  email          String @unique
+  kraPin         String @map("kra_pin")
+  mpesaShortcode Int    @map("mpesa_shortcode")
+  consumerKey    String @map("consumer_key")
+  consumerSecret String @map("consumer_secret")
 
-  schemaName      String   @unique @map("schema_name") // isolation key
+  schemaName String @unique @map("schema_name") // isolation key
 
-  plan            String   @default("starter")
+  plan String @default("starter")
 
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  logo        String?
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
 
   @@map("tenants")
   @@schema("public")
 }
 
 model Permission {
-  id      string @id @default(uuid())
-  resource    String 
-  action      String 
+  id                      string                   @id @default(uuid())
+  resource                String
+  action                  String
   roleTemplatePermissions RoleTemplatePermission[]
-  createdAt   DateTime @default(now()) @map("created_at)
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt               DateTime                 @default(now()) @map(created_at)
+  updatedAt               DateTime                 @updatedAt @map("updated_at")
 
   @@unique([resource, action])
   @@map("permissions")
@@ -49,8 +55,8 @@ model Permission {
 }
 
 model RoleTemplate {
-  id          String @id @default(uuid())
-  name        String @unique
+  id          String  @id @default(uuid())
+  name        String  @unique
   description String?
 
   roleTemplatePermissions RoleTemplatePermission[]
@@ -69,114 +75,6 @@ model RoleTemplatePermission {
   @@id([roleTemplateId, permissionId])
   @@map("role_template_permissions")
   @@schema("public")
-  
-}
-model User {
-  id            String    @id @default(uuid())
-  tenant        Tenant?   @relation(field: [tenantId], references: [id])
-  tenantId      String?   @map("tenant_id")   
-  name          String
-  email         String
-  phoneNumber   String?   @unique @map("phone_number)
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-
-  @@unique([email])
-  @@map("user")
-  @@schema("public")
 }
 
-model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     Stringg
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
-  @@index([userId])
-  @@map("session")
-  @@schema("public")
-
-}
-
-model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  @@index([userId])
-  @@map("account")
-  @@schema("public")
-
-}
-
-model Verification {
-  id         String   @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([identifier])
-  @@map("verification")
-  @@schema("public")
-}
-
-model Users {
-  id            String     @id
-  fullName      String
-  emailAddress  String
-  emailVerified Boolean    @default(false)
-  image         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  is_active     Boolean    @default(true)
-  metadata      Json
-  accountss     Accounts[]
-
-  @@unique([emailAddress])
-  @@map("users")
-  @@schema("public")
-}
-
-model Accounts {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  user_id               String
-  users                 Users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  @@index([user_id])
-  @@map("accounts")
-  @@schema("public")
-}
