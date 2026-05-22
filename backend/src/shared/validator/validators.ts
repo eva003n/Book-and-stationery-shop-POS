@@ -3,8 +3,7 @@ import { z } from "zod";
 // common(Frontend + Backend)
 
 export const apiResponseSchema = z.object({
-  success: z.boolean(),
-  status: z.number(),
+  success: z.boolean().optional(),
   data: z.any(),
   message: z.string().default("Success"),
   meta: z.object({
@@ -28,6 +27,39 @@ export type ApiErrorObj = z.infer<typeof apiErrorSchema>;
 export type EnvVarSchema = z.infer<typeof envVarSchema>;
 // extract type for a member in zod object
 export type MetaData = ApiResponseObj["meta"];
+export type ApiErrors = ApiErrorObj["errors"];
+
+const authSchema = z.object({
+  email: z.email(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters long")
+    .max(72, "Password cannot exceed 72 characters")
+    .regex(/[A-Z]/, "Password must congtain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/\d/, "Password must contain at least one number")
+    .regex(
+      /[!@#$%^&*(),.?":{}|<>]/,
+      "Password must contain at least one special character",
+    ),
+});
+export const signUpSchema = authSchema.extend({
+    name: z.string().min(5).max(100),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password !== data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"], // Highlights the error directly on the confirm inpu
+  });
+
+  export const signInSchema = authSchema.extend({
+    rememberMe: z.boolean().optional(),
+    callbackURL: z.string().optional(),
+  });
+
+export type SignUpAuth = z.infer<typeof signUpSchema>
+export type SignInAuth = z.infer<typeof signInSchema>
+
 
 // backend only
 const betterAuthSecretsSchema = z.array(
@@ -52,6 +84,9 @@ BASE_URL: z.string().url(),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
   API_DOC_URI: z.string().url(),
+  RESEND_API_KEY: z.string().min(1),
+  MAIL_FROM: z.string().min(1),
+  MAIL_REPLY_TO: z.email().optional(),
 });
 
 export type BetterAuthSecrets = z.infer<typeof betterAuthSecretsSchema>;
