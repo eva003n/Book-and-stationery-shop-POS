@@ -34,6 +34,9 @@ export const {
   REDIS_URL,
 
   API_DOC_URI,
+  RESEND_API_KEY,
+  MAIL_FROM,
+  MAIL_REPLY_TO,
 } = result.success ? result.data : {};
 
 if (result.error) throw Error(`Missing env variables  ${result.error.message}`);
