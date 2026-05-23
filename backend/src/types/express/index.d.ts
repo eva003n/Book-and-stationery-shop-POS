@@ -8,6 +8,11 @@ declare global {
       tenant?: { schemaName: string; id: string };
       user?: { id: string; permissions: string[] };
       db?: ReturnType<typeof dbClient.getTenantClient>;
+      validated?: {
+        body?: unknown;
+        params?: unknown;
+        query?: unknown;
+      };
       // [key: string]: string
     }
     interface Response {
