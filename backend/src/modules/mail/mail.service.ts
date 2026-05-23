@@ -9,7 +9,7 @@ import {
 
 type MailAddress = string | string[];
 
-type SendMailInput = {
+export type SendMailInput = {
   to: MailAddress;
   subject: string;
   html?: string;
