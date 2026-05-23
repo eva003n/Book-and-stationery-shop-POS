@@ -28,14 +28,13 @@ model Tenant {
   schemaName String @unique @map("schema_name") // isolation key
 
   plan String @default("starter")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
+  
   logo        String?
   metadata    String?
   members     Member[]
   invitations Invitation[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("tenants")
   @@schema("public")
@@ -121,7 +120,7 @@ model Member {
   userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   role           String   @default("member")
-  createdAt      DateTime
+  createdAt      DateTime @default(now())
 
   @@index([organizationId])
   @@index([userId])
