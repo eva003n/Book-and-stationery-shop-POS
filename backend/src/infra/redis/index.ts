@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { authRedisClient } from "./auth.js";
+import { authRedisClient } from "./session.js";
 import { cacheRedisClient } from "./cache.js";
 
 export const redisClient = {
@@ -11,4 +11,5 @@ export const redisClient = {
 export const shutDownRedis = async() => {
     await Promise.allSettled(Object.values(redisClient).map((client: Redis) => client.quit()))
 }
+
 
