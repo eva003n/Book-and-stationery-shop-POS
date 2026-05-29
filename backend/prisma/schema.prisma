@@ -14,9 +14,9 @@ datasource db {
   schemas  = ["public"]
 }
 
-// organization
+// Tenant
 
-model Tenant {
+model Organization {
   id             String @id @default(uuid())
   name           String
   email          String @unique
@@ -36,7 +36,7 @@ model Tenant {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("tenants")
+  @@map("organizations")
   @@schema("public")
 }
 
