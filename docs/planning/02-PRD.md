@@ -15,7 +15,7 @@
 2. [Problem Statement](#2-problem-statement)
 3. [Goals & Success Metrics](#3-goals--success-metrics)
 4. [Target Users & Personas](#4-target-users--personas)
-5. [Market Context](#5-market-context)
+5. [Market Context](#5-market-context)]
 6. [Feature Requirements](#6-feature-requirements)
 7. [Non-Functional Requirements](#7-non-functional-requirements)
 8. [Pricing & Business Model](#8-pricing--business-model)
