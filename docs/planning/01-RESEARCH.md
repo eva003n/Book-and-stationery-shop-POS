@@ -640,6 +640,14 @@ This erodes customer trust and creates arguments at the counter.
 ---
 
 ## 6. How a Modern Digital POS System Can Help
+### 6.1 Usage
+Rechnological platform used to
+- Record sales transactions
+- Process payments(cash, card, mobile money)
+- Manage inventory
+- Track customer data
+- Generate realtime sales reports
+- Integrate with other business systems
 
 ### 6.1 Barcode Scanning
 
@@ -658,6 +666,7 @@ Every product in the shop gets a barcode — either from the manufacturer or pri
 ---
 
 ### 6.2 Real-Time Inventory Tracking
+Track stock levels in real time, set reorder alerts, eliminate stockouts and over stocking
 
 The POS maintains a live count of every product:
 - When a sale is made → stock decrements
@@ -696,11 +705,15 @@ A good POS transforms raw transaction data into actionable business intelligence
 | Dead Stock Report | Items with zero sales in 30/60/90 days |
 | Stock Velocity Report | Which items turn fastest |
 | Customer Sales History | What a school or company has bought |
-| Pending Debts Report | Who owes how much |
+| Pending Debts Report | Who owes how much |.
+| Cashier reports |
 
 ---
 
-### 6.5 M-Pesa Integration
+### 6.5 Mobile money & card payment integrations
+Kenya leads the world in mobile payments. A good POS integrates with M-Pesa and other mobile money services, making transactions seamless and safe.
+
+#### M-Pesa Integration
 
 This is the single most important Kenyan-specific feature. Proper M-Pesa integration means:
 
@@ -722,7 +735,8 @@ Integration is done via Safaricom's **Daraja API** (M-Pesa developer portal). Sp
 
 ---
 
-### 6.6 Multi-Branch Support
+### 6.6 Support growth
+A scalable POS system grows with your business, adding terminals or new store locations without disrupting operations.
 
 For shops with 2 or more locations:
 - Single cloud database with all branches sharing one product catalogue
@@ -805,6 +819,7 @@ A built-in lightweight CRM allows:
 - Sending payment reminders via SMS/WhatsApp
 - Segmenting customers (Schools, Corporates, Walk-in Retail)
 
+
 ---
 
 ### 6.12 Supplier Management
@@ -854,6 +869,9 @@ The dashboard should answer it visually with:
 - **Slowest-moving products** by stock age
 - **Cash flow summary** (cash received vs. payments made)
 
+### 6.16 Improve customer experience
+- Smooth transactions and fast updates
+- Loyalty programs enhance customer satisfaction and repeat business.
 ---
 
 ## 7. Kenyan Market Requirements
