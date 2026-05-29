@@ -428,6 +428,93 @@ Since this is a multi-tenant archhitecture each tenant(shop owner/ merchant) get
 ### 4.1 Core Schema (PostgreSQL — per-tenant schema)
 
 ```sql
+-- Organization(Tenant)
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE organization (
+  id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name                VARCHAR(100) NOT NULL,
+  email               VARCHAR(200) UNIQUE NOT NULL,
+  kra_pin             VARCHAR(11)  UNIQUE,
+  mpesa_short_code    INTEGER,
+  consumer_key        TEXT,
+  consumer_secret     TEXT,
+  schema_name         VARCHAR(63) UNIQUE NOT NULL,
+  plan                VARCHAR(50) NOT NULL DEFAULT 'starter',
+  metadata            JSONB DEFAULT '{}'::jsonb,
+  created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  deleted_at          
+  -- soft delete (important in SaaS)
+  deleted_at          TIMESTAMPTZ
+);
+-- Members
+CREATE TABLE members (
+  organization_id     UUID,
+  user_id             UUID,
+  PRIMARY KEY (organization_id, user_id),
+  FOREIGN KEY (organization_id) REFERENCES organizations(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+-- Users
+CREATE TABLE users (
+  id                  UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+  -- Identity
+  full_name           VARCHAR(100) NOT NULL,
+  email               VARCHAR(150),                           -- optional; phone is primary identifier]
+  phone               VARCHAR(20)  NOT NULL,                  -- 07XX XXX XXX
+  -- Credentials
+  password       VARCHAR(255),                           -- NULL if PIN-only (cashier)
+
+  -- Security
+  metadata            jsonb  DEFAULT '{}'::jsonb,
+
+  -- Soft delete
+  is_active           BOOLEAN      NOT NULL DEFAULT true,
+
+  -- Timestamps
+  created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  updated_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  deleted_at          TIMESTAMPTZ
+);
+
+--- Roles
+CREATE TABLE roles (
+  id      UUID PRIMARY KEY  DEFAULT gen_random_uuid(),
+  name    VARCHAR(50) NOT NULL UNIQUE DEFAULT 'cashier',
+    -- Allowed values:
+  --   'owner'          – full access; created on tenant signup
+  --   'branch_manager' – full access to assigned branch
+  --   'cashier'        – POS checkout only
+  --   'stock_clerk'    – receive stock, run stock counts
+  --   'accountant'     – reports and expenses, read-only sales
+  created_at    TIMESTAMPTZ DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ DEFAULT NOW()
+);
+-- User_roles
+CREATE TABLE user_roles (
+  user_id     UUID,
+  role_id     UUID,
+  PRIMARY KEY (user_id, role_id),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (role_id) REFERENCES roles(id),
+);
+-- permissions
+create table permissions (
+  id      UUID PRIMARY KEY  DEFAULT gen_random_uuid(),
+  action    VARCHAR(50) NOT NULL DEFAULT 'read:customer',
+  created_at    TIMESTAMPTZ DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- role_permissions
+CREATE TABLE role_permissions (
+  role_id         UUID,
+  permission_id   UUID,
+  PRIMARY KEY (role_id, permission_id),
+  FOREIGN KEY (role_id) REFERENCES roles(id),   
+  FOREIGN KEY (permission_id) REFERENCES permissions(id),   
+);
 -- Products
 CREATE TABLE products (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -483,64 +570,10 @@ CREATE TABLE sales (
   synced_at       TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Users
-CREATE TABLE users (
-  id                  UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Identity
-  full_name           VARCHAR(100) NOT NULL,
-  email               VARCHAR(150),                           -- optional; phone is primary identifier
-  phone               VARCHAR(20)  NOT NULL,                  -- 07XX XXX XXX — used for login + OTP
-  phone_verified      BOOLEAN      NOT NULL DEFAULT false,
-  email_verified      BOOLEAN      NOT NULL DEFAULT false,
-
-  -- Credentials
-  password_hash       VARCHAR(255),                           -- NULL if PIN-only (cashier)
-  pin_hash            VARCHAR(255),                           -- 4-digit PIN hash (bcrypt); quick re-auth at counter
-  must_change_password BOOLEAN     NOT NULL DEFAULT false,    -- force reset on first login
-
-  -- Role & Access
-  role                VARCHAR(20)  NOT NULL DEFAULT 'cashier',
-  -- Allowed values:
-  --   'owner'          – full access; created on tenant signup
-  --   'branch_manager' – full access to assigned branch
-  --   'cashier'        – POS checkout only
-  --   'stock_clerk'    – receive stock, run stock counts
-  --   'accountant'     – reports and expenses, read-only sales
-
-  -- Branch assignment (NULL = access to all branches — owner / accountant)
-  branch_id           UUID         REFERENCES branches(id) ON DELETE SET NULL,
-
-  -- Profile
-  avatar_url          TEXT,
-  language            VARCHAR(10)  NOT NULL DEFAULT 'en',     -- 'en' | 'sw'
-
-  -- Security
-  failed_login_count  INTEGER      NOT NULL DEFAULT 0,
-  locked_until        TIMESTAMPTZ,                            -- set when failed_login_count >= 5
-  last_login_at       TIMESTAMPTZ,
-  last_login_ip       INET,
-  last_login_device   TEXT,                                   -- user-agent string
-
-  -- Two-Factor Auth (optional)
-  otp_secret          VARCHAR(64),                            -- TOTP secret (base32)
-  otp_enabled         BOOLEAN      NOT NULL DEFAULT false,
-
-  -- Soft delete
-  is_active           BOOLEAN      NOT NULL DEFAULT true,
-  deactivated_at      TIMESTAMPTZ,
-  deactivated_by      UUID         REFERENCES users(id),
-
-  -- Timestamps
-  created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  updated_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  created_by          UUID         REFERENCES users(id)
-);
 
 -- Indexes
 CREATE UNIQUE INDEX idx_users_phone_unique ON users(phone) WHERE is_active = true;
-CREATE INDEX idx_users_role               ON users(role);
-CREATE INDEX idx_users_branch             ON users(branch_id) WHERE branch_id IS NOT NULL;
 CREATE INDEX idx_users_active             ON users(is_active) WHERE is_active = true;
 
 -- Sale Items
@@ -565,7 +598,7 @@ CREATE TABLE payments (
   mpesa_receipt   VARCHAR(20),
   confirmed_at    TIMESTAMPTZ,
   created_at      TIMESTAMPTZ DEFAULT NOW()
-);]
+);
 
 -- eTIMS Records
 CREATE TABLE etims_records (
