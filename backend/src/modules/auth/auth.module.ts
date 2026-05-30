@@ -1,3 +1,6 @@
-import authRouter from "./auth.routes.js";
+export {
+  createAuthOrganization,
+  type CreateAuthOrganizationInput,
+} from "./services/org.service.js";
 
-export default authRouter;
+// export {authRouter} from "./auth.routes.js"
