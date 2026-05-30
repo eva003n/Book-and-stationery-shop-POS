@@ -1,18 +1,12 @@
 import type { IncomingHttpHeaders } from "node:http";
 import type { SignInAuth, SignUpAuth } from "../../shared/validator/validators.js";
 import { auth } from "./auth.config.js";
+import type { AuthMember } from "./auth.types.js";
+import  { toWebHeaders } from "./auth.util.js";
 
-const toWebHeaders = (headers: IncomingHttpHeaders) => {
-  const webHeaders = new Headers();
 
-  for (const [key, value] of Object.entries(headers)) {
-    if (!value) continue;
 
-    webHeaders.set(key, Array.isArray(value) ? value.join(", ") : value);
-  }
 
-  return webHeaders;
-};
 
 export const registerUser = async(authData: SignUpAuth) => {
     const data = await auth.api.signUpEmail({
@@ -46,3 +40,7 @@ export const signOutUser = async(headers: IncomingHttpHeaders) => {
       headers: toWebHeaders(headers),
     });
 }
+
+
+
+
