@@ -3,6 +3,7 @@ import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
 import { ExpressAdapter } from "@bull-board/express";
 import { API_DOC_URI, APP_NAME } from "../config/env";
 import type { Queue } from "bullmq";
+import { emailQueue } from "./email.queue.js";
 
 // Website: https://oneuptime.com/blog/post/2026-01-21-bullmq-bull-board/view#installing-bull-board
 
@@ -88,7 +89,12 @@ const groups: QueueGroup[] = [
     {
         name: "Reports", 
         queues: []
+    },
+    {
+        name: "Email",
+        queues: [emailQueue]
     }
 ]
 
 export const groupedBoard = new GroupedBullBoard(groups)
+export {enqueueEmail} from "./email.queue.js"
