@@ -13,7 +13,7 @@ import { requestId } from "../middleware/requestId.middleware.js";
 import errorHandlerMiddleware from "../middleware/error.middleware.js";
 import notFound from "../middleware/notFound.middleware.js";
 import { groupedBoard } from "../queues/index.js";
-import authRouter from "../modules/auth/auth.module.js";
+// import authRouter from "../modules/auth/auth.module.js";
 
 const app = express();
 
@@ -67,7 +67,7 @@ app.use(compression());
 
 // Endpoints(Routes)
 app.use("/api/v1/admin/queues", groupedBoard.getRouter())
-app.use("/api/v1/auth", authRouter)
+// app.use("/api/v1/auth", authRouter)
 // fallback
 app.use(notFound);
 // error handling middleware
