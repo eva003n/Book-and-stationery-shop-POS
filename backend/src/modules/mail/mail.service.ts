@@ -6,6 +6,7 @@ import {
   NODE_ENV,
   RESEND_API_KEY,
 } from "../../config/env.js";
+import { enqueueEmail } from "../../queues/email.queue.js";
 
 type MailAddress = string | string[];
 
@@ -23,7 +24,7 @@ export type SendMailInput = {
 
 export const resend = new Resend(RESEND_API_KEY);
 
-export const sendMail = async ({
+export const sendMailNow = async ({
   from = MAIL_FROM,
   replyTo = MAIL_REPLY_TO,
   tags = [],
@@ -64,6 +65,14 @@ export const sendMail = async ({
     ...baseEmail,
     text,
   });
+};
+
+export const sendMail = async (mail: SendMailInput) => {
+  if (!mail.html && !mail.text) {
+    throw new Error("Email must include either html or text content");
+  }
+
+  return enqueueEmail<SendMailInput>(mail);
 };
 
 export const sendTransactionalEmail = sendMail;
