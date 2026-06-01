@@ -14,6 +14,7 @@ const errorHandlerMiddleware = (
     return res.type("application/problem+json").status(err.status).json(err);
   } else {
     logger.error(err.message);
+    console.log(err)
     // console.dir(err);
     return res
       .type("application/problem+json")

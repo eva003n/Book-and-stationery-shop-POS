@@ -40,6 +40,10 @@ model Organization {
   branchess    Branches[]
   invitationss Invitations[]
 
+  memberss Members[]
+
+  branchs Branch[]
+
   @@map("organizations")
   @@schema("public")
 }
@@ -81,21 +85,21 @@ model RoleTemplatePermission {
 }
 
 model User {
-  id             String          @id
-  name           String
-  email          String
-  emailVerified  Boolean         @default(false)
-  image          String?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  metadata       Json?
-  accounts       Account[]
-  branchMembers BranchMembers[]
-  members        Member[]
-  invitations   Invitations[]
+  id            String         @id
+  name          String
+  email         String
+  emailVerified Boolean        @default(false)
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  metadata      Json?
+  accounts      Account[]
+  branchmembers BranchMember[]
+  members       Member[]
+  invitations   Invitation[]
 
   @@unique([email])
-  @@map("User")
+  @@map("users")
 }
 
 model Account {
@@ -118,23 +122,23 @@ model Account {
   @@map("accounts")
 }
 
-model Branches {
-  id             String          @id
+model Branch {
+  id             String         @id
   name           String
   organizationId String
-  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime
-  updatedAt      DateTime?       @updatedAt
-  branchMembers BranchMembers[]
+  updatedAt      DateTime?      @updatedAt
+  branchMembers  BranchMember[]
 
   @@index([organizationId])
   @@map("branches")
 }
 
-model BranchMembers {
+model BranchMember {
   id        String    @id
   branchId  String
-  branches  Branches  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch    Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime?
@@ -158,7 +162,7 @@ model Member {
   @@map("members")
 }
 
-model Invitations {
+model Invitation {
   id             String       @id
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)

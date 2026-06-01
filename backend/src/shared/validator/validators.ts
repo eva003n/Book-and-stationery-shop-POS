@@ -72,12 +72,14 @@ export const envVarSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
-BASE_URL: z.string().url(),
+  BASE_URL: z.string().url(),
   PORT: z.coerce.number().int().positive(),
   APP_NAME: z.string().min(1),
   COOKIE_SECRET: z.string().min(1),
   CORS_ORIGIN_URLS: z.string().min(1),
   BETTER_AUTH_SECRETS: z.string().min(32),
+  BETTER_AUTH_URL: z.string(),
+  JWT_TOKEN_VERSION: z.string(),
   LOG_LEVEL: z.enum(["error", "warn", "info", "debug"]).default("info"),
   LOGTAIL_SOURCE_TOKEN: z.string().optional(),
   LOGTAIL_INGESTION_HOST: z.string().optional(),

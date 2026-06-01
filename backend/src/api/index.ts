@@ -3,12 +3,11 @@ import { shutDownRedis } from "../infra/redis/index.js";
 import logger from "../logger/index.js";
 import { server } from "./app.js";
 
-const isProduction = NODE_ENV === "production";
 
 const port = PORT;
 server.listen(port, () => {
   logger.info(
-    `Server running at: ${!isProduction ? BASE_URL + ":" + PORT : BASE_URL} `,
+    `Server running at: ${BASE_URL}`,
   );
 });
 
@@ -34,5 +33,5 @@ process.on("unhandledRejection", (err) => {
     
 })
 
-process.on("SIGTERM", shutDown)
-process.on("SIGINT", shutDown)
+process.on("SIGTERM", () => shutDown())
+process.on("SIGINT", () => shutDown())
