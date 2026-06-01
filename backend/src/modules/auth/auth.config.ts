@@ -7,9 +7,9 @@ import {
   APP_NAME,
   BASE_URL,
   BETTER_AUTH_SECRETS,
+  BETTER_AUTH_URL,
   CORS_ORIGIN_URLS,
-  NODE_ENV,
-  PORT,
+  JWT_TOKEN_VERSION,
 } from "../../config/env.js";
 import type { BetterAuthSecrets } from "../../shared/validator/validators.js";
 import { redisStorage } from "@better-auth/redis-storage";
@@ -20,17 +20,61 @@ import { accessControl, normalizeRole, posRoles, toPermissionList } from "./auth
 const origins = CORS_ORIGIN_URLS?.split(",");
 const secrets = BETTER_AUTH_SECRETS?.split(",") || [];
 
-const isProduction = NODE_ENV === "production";
-const baseURL = BASE_URL;
+const baseUrl = BETTER_AUTH_URL;
 
+const SESSION_MAX_AGE = 60 * 60 * 8; // 8 hours
+const SESSION_CACHE_MAX_AGE = 60 * 15; // 15 minutes
 
+const getTenantClaims = async ({
+  organizationId,
+  branchId,
+  userId,
+}: {
+  organizationId?: string | null;
+  branchId?: string | null;
+  userId: string;
+}) => {
+  if (!organizationId) {
+    return {
+      organizationId: null,
+      schemaName: null,
+      branchId: branchId ?? null,
+      role: normalizeRole(),
+    };
+  }
 
+  const [organizations, members] = await Promise.all([
+    dbClient.main.$queryRaw<Array<{ id: string; schemaName: string }>>`
+      SELECT id, schema_name AS "schemaName"
+      FROM public.organizations
+      WHERE id = ${organizationId}
+      LIMIT 1
+    `,
+    dbClient.main.$queryRaw<Array<{ role: string | null }>>`
+      SELECT role
+      FROM public.members
+      WHERE "organizationId" = ${organizationId}
+        AND "userId" = ${userId}
+      LIMIT 1
+    `,
+  ]);
+
+  const organization = organizations[0];
+  const member = members[0];
+
+  return {
+    organizationId: organization?.id ?? null,
+    schemaName: organization?.schemaName ?? null,
+    branchId: branchId ?? null,
+    role: normalizeRole(member?.role),
+  };
+};
 
 export const auth = betterAuth({
   database: prismaAdapter(dbClient.main, {
     provider: "postgresql",
   }),
-  baseURL,
+  // baseURL: BETTER_AUTH_URL,
   basePath: "/api/v1/auth",
   appName: APP_NAME,
   trustedOrigins: origins,
@@ -137,55 +181,57 @@ export const auth = betterAuth({
               type: "string",
               defaultValue: "Starter",
             },
-
           },
         },
         member: {
-          modelName: "members"
+          modelName: "Member",
         },
         team: {
-          modelName: "branches",
+          modelName: "Branch",
         },
         teamMember: {
-          modelName: "branchMembers",
-          fields: {
-            teamId: "branchId"
-          }
-
-        },
-        invitation: {
-          modelName: "invitations",
+          modelName: "BranchMember",
           fields: {
             teamId: "branchId",
           },
         },
-     
+        invitation: {
+          modelName: "Invitation",
+          fields: {
+            teamId: "branchId",
+          },
+        },
       },
     }),
 
- 
     jwt({
       jwt: {
-        issuer: baseURL,
+        issuer: baseUrl,
         audience: APP_NAME,
-        expirationTime: "8h",
-        // customize whats added to the jwt payload
+        expirationTime: `${SESSION_MAX_AGE}s`, // 8h
         definePayload: async ({ user, session }) => {
-          const tenantId =
-            session.activeOrganizationId ?? session.tenantId ?? user.tenantId;
-
-          const role = normalizeRole(session?.role ?? user.role ?? user.roleId);
+          const tenant = await getTenantClaims({
+            organizationId: session.activeOrganizationId ?? null,
+            branchId: session.activeTeamId ?? null,
+            userId: user.id,
+          });
 
           return {
             sub: user.id,
-            org_id: user.tenantId ?? null,
-            schema_name: session?.schemaName ?? null,
-            role,
-            permissions: toPermissionList(role),
-            email: user.email,
-            name: user.name,
+            // email: user.email,
+            // email_verified: user.emailVerified,
+            // name: user.name,
+            org_id: tenant.organizationId,
+            tenant_id: tenant.organizationId,
+            schema_name: tenant.schemaName,
+            branch_id: tenant.branchId,
+            role: tenant.role,
+            permissions: toPermissionList(tenant.role),
+            // session_id: session.id,
+            // token_type: "access",
           };
         },
+        getSubject: async ({ user }) => user.id,
       },
     }),
   ],
@@ -234,29 +280,27 @@ export const auth = betterAuth({
     modelName: "Session",
     fields: {
       userId: "userId",
-      tenantId: "tenantId",
     },
     additionalFields: {
       tenantId: {
         type: "string",
         required: false,
         input: false,
-        // returned: false,
-      },
-      role: {
-        type: "string",
-        required: false,
       },
       schemaName: {
         type: "string",
         required: false,
+        input: false,
       },
     },
-    expiresIn: 60 * 60 * 8, // 8 hours operation/day
-    updateAge: 60 * 60, // 1 hour
+    expiresIn: SESSION_MAX_AGE, //8h
+    updateAge: SESSION_CACHE_MAX_AGE - 1, // 15min - 1
+    // disableSessionRefresh: true,
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 5, // 5 mins
+      strategy: "jwe",
+      maxAge: SESSION_CACHE_MAX_AGE,
+      version: JWT_TOKEN_VERSION as string,
     },
   },
 
