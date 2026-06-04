@@ -39,6 +39,10 @@ export const {
   RESEND_API_KEY,
   MAIL_FROM,
   MAIL_REPLY_TO,
+  FACEBOOK_CLIENT_ID,
+  FACEBOOK_CLIENT_SECRET,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
 } = result.success ? result.data : {};
 
 if (result.error) throw Error(`Missing env variables  ${result.error.message}`);
