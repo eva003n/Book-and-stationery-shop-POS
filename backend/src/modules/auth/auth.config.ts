@@ -9,6 +9,10 @@ import {
   BETTER_AUTH_SECRETS,
   BETTER_AUTH_URL,
   CORS_ORIGIN_URLS,
+  FACEBOOK_CLIENT_ID,
+  FACEBOOK_CLIENT_SECRET,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
   JWT_TOKEN_VERSION,
 } from "../../config/env.js";
 import type { BetterAuthSecrets } from "../../shared/validator/validators.js";
@@ -70,11 +74,13 @@ const getTenantClaims = async ({
   };
 };
 
+;
+
 export const auth = betterAuth({
   database: prismaAdapter(dbClient.main, {
     provider: "postgresql",
   }),
-  // baseURL: BETTER_AUTH_URL,
+  // baseURL: "http://localhost:8000",
   basePath: "/api/v1/auth",
   appName: APP_NAME,
   trustedOrigins: origins,
@@ -116,12 +122,14 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
   },
   socialProviders: {
-    /* google: {
-
+    google: {
+      clientId: GOOGLE_CLIENT_ID as string,
+      clientSecret: GOOGLE_CLIENT_SECRET as string,
     },
     facebook: {
-
-    } */
+      clientId: FACEBOOK_CLIENT_ID as string,
+      clientSecret: FACEBOOK_CLIENT_SECRET as string,
+    },
   },
 
   plugins: [
@@ -193,6 +201,7 @@ export const auth = betterAuth({
           modelName: "BranchMember",
           fields: {
             teamId: "branchId",
+            userId: "memberId"
           },
         },
         invitation: {
