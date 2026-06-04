@@ -66,7 +66,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(compression());
 
 // Endpoints(Routes)
-app.use(authRouter);
+app.use("/api/v1/auth", authRouter);
 
 app.use("/api/v1/admin/queues", groupedBoard.getRouter())
 // fallback
