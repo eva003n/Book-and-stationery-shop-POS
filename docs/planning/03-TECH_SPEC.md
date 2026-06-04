@@ -428,10 +428,12 @@ Since this is a multi-tenant archhitecture each tenant(shop owner/ merchant) get
 ### 4.1 Core Schema (PostgreSQL — per-tenant schema)
 
 ```sql
--- Organization(Tenant)
+--- uuid geeneration
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-CREATE TABLE organization (
+-- Organization(Tenant)
+
+CREATE TABLE organizations (
   id                 UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name                VARCHAR(100) NOT NULL,
   email               VARCHAR(200) UNIQUE NOT NULL,
@@ -443,8 +445,7 @@ CREATE TABLE organization (
   plan                VARCHAR(50) NOT NULL DEFAULT 'starter',
   metadata            JSONB DEFAULT '{}'::jsonb,
   created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  updated_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-  deleted_at          
+  updated_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),         
   -- soft delete (important in SaaS)
   deleted_at          TIMESTAMPTZ
 );
@@ -492,7 +493,7 @@ CREATE TABLE roles (
   updated_at    TIMESTAMPTZ DEFAULT NOW()
 );
 -- User_roles
-CREATE TABLE user_roles (
+CREATE TABLE member_roles (
   user_id     UUID,
   role_id     UUID,
   PRIMARY KEY (user_id, role_id),
