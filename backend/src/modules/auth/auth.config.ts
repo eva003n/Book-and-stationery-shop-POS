@@ -145,15 +145,15 @@ export const auth = betterAuth({
         return role === "owner";
       },
       // this will represent branches for multi-branch stores
-      teams: {
-        enabled: true,
-        maximumTeams: async ({ organizationId, session }, ctx) => {
-          // Dynamic limit based on organization plan
-          return 5;
-        },
+      // teams: {
+      //   enabled: true,
+      //   maximumTeams: async ({ organizationId, session }, ctx) => {
+      //     // Dynamic limit based on organization plan
+      //     return 5;
+      //   },
 
-        allowRemovingAllTeams: false,
-      },
+      //   allowRemovingAllTeams: false,
+      // },
       schema: {
         organization: {
           modelName: "Organization",
@@ -193,22 +193,22 @@ export const auth = betterAuth({
         },
         member: {
           modelName: "Member",
+          // fields: {
+          //   role: "roleId" //one role per membership per organization
+          // }
         },
-        team: {
-          modelName: "Branch",
-        },
-        teamMember: {
-          modelName: "BranchMember",
-          fields: {
-            teamId: "branchId",
-            userId: "memberId"
-          },
-        },
+        // team: {
+        //   modelName: "Branch",
+        // },
+        // teamMember: {
+        //   modelName: "BranchMember",
+        //   fields: {
+        //     teamId: "branchId",
+        //     userId: "memberId"
+        //   },
+        // },
         invitation: {
           modelName: "Invitation",
-          fields: {
-            teamId: "branchId",
-          },
         },
       },
     }),
@@ -329,7 +329,7 @@ export const auth = betterAuth({
   },
 
   verification: {
-    modelName: "Verification",
+    modelName: "Verificat'ion",
     disableCleanup: false,
     storeIdentifier: "hashed",
   },
