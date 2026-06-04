@@ -35,14 +35,10 @@ model Organization {
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
 
-  branches Branches[]
+  branches Branch[]
+  invitationss Invitation[]
 
-  branchess    Branches[]
-  invitationss Invitations[]
-
-  memberss Members[]
-
-  branchs Branch[]
+  members Member[]
 
   @@map("organizations")
   @@schema("public")
@@ -94,12 +90,13 @@ model User {
   updatedAt     DateTime       @updatedAt
   metadata      Json?
   accounts      Account[]
-  branchmembers BranchMember[]
+  branchMembers BranchMember[]
   members       Member[]
   invitations   Invitation[]
 
   @@unique([email])
   @@map("users")
+  @@schema("public")
 }
 
 model Account {
@@ -120,6 +117,8 @@ model Account {
 
   @@index([userId])
   @@map("accounts")
+  @@schema("public")
+
 }
 
 model Branch {
@@ -133,19 +132,22 @@ model Branch {
 
   @@index([organizationId])
   @@map("branches")
+  @@schema("public")
+
 }
 
 model BranchMember {
   id        String    @id
   branchId  String
   branch    Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime?
+  updatedAt DateTime?
 
   @@index([branchId])
   @@index([userId])
   @@map("branchMembers")
+  @@schema("public")
+
 }
 
 model Member {
@@ -160,6 +162,8 @@ model Member {
   @@index([organizationId])
   @@index([userId])
   @@map("members")
+  @@schema("public")
+
 }
 
 model Invitation {
@@ -178,6 +182,8 @@ model Invitation {
   @@index([organizationId])
   @@index([email])
   @@map("invitations")
+  @@schema("public")
+
 }
 
 model Jwks {
@@ -188,4 +194,6 @@ model Jwks {
   expiresAt  DateTime?
 
   @@map("jwks")
+  @@schema("public")
+
 }
