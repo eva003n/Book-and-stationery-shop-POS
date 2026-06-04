@@ -35,7 +35,7 @@ const authSchema = z.object({
     .string()
     .min(8, "Password must be at least 8 characters long")
     .max(72, "Password cannot exceed 72 characters")
-    .regex(/[A-Z]/, "Password must congtain at least one uppercase letter")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/\d/, "Password must contain at least one number")
     .regex(
@@ -43,23 +43,23 @@ const authSchema = z.object({
       "Password must contain at least one special character",
     ),
 });
-export const signUpSchema = authSchema.extend({
+export const signUpSchema = authSchema
+  .extend({
     name: z.string().min(5).max(100),
-    confirmPassword: z.string(),
+    // confirmPassword: z.string(),
   })
-  .refine((data) => data.password !== data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"], // Highlights the error directly on the confirm inpu
-  });
+  // .refine((data) => data.password !== data.confirmPassword, {
+  //   message: "Passwords do not match",
+  //   path: ["confirmPassword"], // Highlights the error directly on the confirm inpu
+  // });
 
-  export const signInSchema = authSchema.extend({
-    rememberMe: z.boolean().optional(),
-    callbackURL: z.string().optional(),
-  });
+export const signInSchema = authSchema.extend({
+  rememberMe: z.boolean().optional(),
+  callbackURL: z.string().optional(),
+});
 
-export type SignUpAuth = z.infer<typeof signUpSchema>
-export type SignInAuth = z.infer<typeof signInSchema>
-
+export type SignUpAuth = z.infer<typeof signUpSchema>;
+export type SignInAuth = z.infer<typeof signInSchema>;
 
 // backend only
 const betterAuthSecretsSchema = z.array(
@@ -89,6 +89,10 @@ export const envVarSchema = z.object({
   RESEND_API_KEY: z.string().min(1),
   MAIL_FROM: z.string().min(1),
   MAIL_REPLY_TO: z.email().optional(),
+  FACEBOOK_CLIENT_ID: z.string().optional(),
+  FACEBOOK_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
 });
 
 export type BetterAuthSecrets = z.infer<typeof betterAuthSecretsSchema>;
