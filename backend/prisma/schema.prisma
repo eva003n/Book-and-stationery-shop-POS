@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider        = "prisma-client"
   output          = "../src/generated/prisma"
@@ -14,186 +9,103 @@ datasource db {
   schemas  = ["public"]
 }
 
-// Tenant
+model accounts {
+  id                       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                  String    @db.Uuid
+  account_id               String    @unique
+  provider_id              String
+  access_token             String?
+  refresh_token            String?
+  access_token_expires_at  DateTime? @db.Timestamp(6)
+  refresh_token_expires_at DateTime? @db.Timestamp(6)
+  scope                    String?
+  id_token                 String?
+  password                 String?
+  created_at               DateTime  @default(now()) @db.Timestamp(6)
+  updated_at               DateTime  @default(now()) @db.Timestamp(6)
+  users                    users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-model Organization {
-  id             String @id @default(uuid())
-  name           String
-  email          String @unique
-  kraPin         String @map("kra_pin")
-  mpesaShortcode Int    @map("mpesa_shortcode")
-  consumerKey    String @map("consumer_key")
-  consumerSecret String @map("consumer_secret")
-
-  schemaName String @unique @map("schema_name") // isolation key
-
-  plan        String       @default("starter")
-  logo        String?
-  metadata    String?
-  members     Member[]
-  invitations Invitation[]
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
-
-  branches Branch[]
-  invitationss Invitation[]
-
-  members Member[]
-
-  @@map("organizations")
   @@schema("public")
 }
 
-model Permission {
-  id                      string                   @id @default(uuid())
-  resource                String
-  action                  String
-  roleTemplatePermissions RoleTemplatePermission[]
-  createdAt               DateTime                 @default(now()) @map(created_at)
-  updatedAt               DateTime                 @updatedAt @map("updated_at")
+model members {
+  organization_id String        @db.Uuid
+  user_id         String        @db.Uuid
+  meta_data       Json?         @default("{}")
+  created_at      DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime      @default(now()) @db.Timestamptz(6)
+  organizations   organizations @relation(fields: [organization_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users           users         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@unique([resource, action])
-  @@map("permission")
+  @@id([organization_id, user_id])
   @@schema("public")
 }
 
-model RoleTemplate {
-  id          String  @id @default(uuid())
-  name        String  @unique
-  description String?
 
-  roleTemplatePermissions RoleTemplatePermission[]
+model organizations {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String    @db.VarChar(100)
+  email            String    @unique @db.VarChar(200)
+  kra_pin          String?   @unique @db.VarChar(11)
+  mpesa_short_code Int?
+  consumer_key     String?
+  consumer_secret  String?
+  schema_name      String    @unique @db.VarChar(63)
+  plan             String    @default("starter") @db.VarChar(50)
+  meta_data        Json?     @default("{}")
+  created_at       DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime  @default(now()) @db.Timestamptz(6)
+  deleted_at       DateTime? @db.Timestamptz(6)
+  members          members[]
 
-  @@map("role_templates")
   @@schema("public")
 }
 
-model RoleTemplatePermission {
-  roleTemplateId String @map("role_template_id")
-  permissionId   String @map("permission_id")
+model permissions {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  action           String             @db.VarChar(50)
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  role_permissions role_permissions[]
 
-  roleTemplate RoleTemplate @relation(fields: [roleTemplateId], references: [id])
-  permission   Permission   @relation(fields: [permissionId], references: [id])
-
-  @@id([roleTemplateId, permissionId])
-  @@map("role_template_permissions")
   @@schema("public")
 }
 
-model User {
-  id            String         @id
-  name          String
-  email         String
-  emailVerified Boolean        @default(false)
-  image         String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  metadata      Json?
-  accounts      Account[]
-  branchMembers BranchMember[]
-  members       Member[]
-  invitations   Invitation[]
+model role_permissions {
+  role_id       String      @db.Uuid
+  permission_id String      @db.Uuid
+  created_at    DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime    @default(now()) @db.Timestamptz(6)
+  permissions   permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  roles         roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@unique([email])
-  @@map("users")
+  @@id([role_id, permission_id])
   @@schema("public")
 }
 
-model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+model roles {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String             @default("cashier") @db.VarChar(50)
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  role_permissions role_permissions[]
 
-  @@index([userId])
-  @@map("accounts")
   @@schema("public")
-
 }
 
-model Branch {
-  id             String         @id
-  name           String
-  organizationId String
-  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime
-  updatedAt      DateTime?      @updatedAt
-  branchMembers  BranchMember[]
+model users {
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  full_name  String     @db.VarChar(100)
+  email      String     @unique @db.VarChar(150)
+  phone      String?    @unique @db.VarChar(20)
+  password   String?    @db.VarChar(255)
+  metadata   Json?      @default("{}")
+  is_active  Boolean    @default(true)
+  created_at DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at DateTime   @default(now()) @db.Timestamptz(6)
+  deleted_at DateTime?  @db.Timestamptz(6)
+  accounts   accounts[]
+  members    members[]
 
-  @@index([organizationId])
-  @@map("branches")
   @@schema("public")
-
-}
-
-model BranchMember {
-  id        String    @id
-  branchId  String
-  branch    Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  createdAt DateTime?
-  updatedAt DateTime?
-
-  @@index([branchId])
-  @@index([userId])
-  @@map("branchMembers")
-  @@schema("public")
-
-}
-
-model Member {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           String       @default("member")
-  createdAt      DateTime
-
-  @@index([organizationId])
-  @@index([userId])
-  @@map("members")
-  @@schema("public")
-
-}
-
-model Invitation {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  email          String
-  role           String?
-  branchId       String?
-  status         String       @default("pending")
-  expiresAt      DateTime
-  createdAt      DateTime     @default(now())
-  inviterId      String
-  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
-
-  @@index([organizationId])
-  @@index([email])
-  @@map("invitations")
-  @@schema("public")
-
-}
-
-model Jwks {
-  id         String    @id
-  publicKey  String
-  privateKey String
-  createdAt  DateTime
-  expiresAt  DateTime?
-
-  @@map("jwks")
-  @@schema("public")
-
 }
