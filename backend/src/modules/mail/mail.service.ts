@@ -7,20 +7,7 @@ import {
   RESEND_API_KEY,
 } from "../../config/env.js";
 import { enqueueEmail } from "../../queues/email.queue.js";
-
-type MailAddress = string | string[];
-
-export type SendMailInput = {
-  to: MailAddress;
-  subject: string;
-  html?: string;
-  text?: string;
-  from?: string;
-  replyTo?: string;
-  cc?: MailAddress;
-  bcc?: MailAddress;
-  tags?: Array<{ name: string; value: string }>;
-};
+import type { SendMailInput } from "../../shared/validator/validators.js";
 
 export const resend = new Resend(RESEND_API_KEY);
 

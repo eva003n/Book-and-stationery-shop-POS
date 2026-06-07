@@ -9,17 +9,16 @@ import  { toWebHeaders } from "./auth.util.js";
 
 
 export const registerUser = async(authData: SignUpAuth) => {
-    // const data = await auth.api.signUpEmail({
-    //   body: {
-    //     name: authData.name,
-    //     email: authData.email,
-    //     password: authData.password
+    const data = await auth.api.signUpEmail({
+      body: {
+        name: authData.name,
+        email: authData.email,
+        password: authData.password
         
-    //   },
-    // });
+      },
+    });
 
-    // return data;
-    return "auth"
+    return data;
 }
 
 export const logInUser = async(authData: SignInAuth, headers: IncomingHttpHeaders) => {
