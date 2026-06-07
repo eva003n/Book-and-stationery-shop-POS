@@ -6,8 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon",
+    "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:reset": "prisma migrate reset",
+    "prisma:pull": "pnpm dlx prisma db pull",
+    "auth:generate": "pnpm dlx @better-auth/cli@latest generate --config src/modules/auth/auth.config.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
