@@ -95,4 +95,30 @@ export const envVarSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 });
 
+export const mailAddressSchema = z.union([
+  z.email(),
+  z.array(z.email()),
+]);
+
+export const sendMailSchema = z.object({
+  to: mailAddressSchema,
+  subject: z.string().min(1),
+  html: z.string().optional(),
+  text: z.string().optional(),
+  from: z.email().optional(),
+  replyTo: z.email().optional(),
+  cc: mailAddressSchema.optional(),
+  bcc: mailAddressSchema.optional(),
+  tags: z
+    .array(
+      z.object({
+        name: z.string(),
+        value: z.string(),
+      })
+    )
+    .optional(),
+});
+
+export type MailAddress = z.infer<typeof mailAddressSchema>;
+export type SendMailInput = z.infer<typeof sendMailSchema>;
 export type BetterAuthSecrets = z.infer<typeof betterAuthSecretsSchema>;

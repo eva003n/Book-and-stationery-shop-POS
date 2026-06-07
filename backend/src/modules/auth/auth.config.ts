@@ -57,8 +57,8 @@ const getTenantClaims = async ({
     dbClient.main.$queryRaw<Array<{ role: string | null }>>`
       SELECT role
       FROM public.members
-      WHERE "organizationId" = ${organizationId}
-        AND "userId" = ${userId}
+      WHERE organization_id = ${organizationId}
+        AND user_id = ${userId}
       LIMIT 1
     `,
   ]);
@@ -80,6 +80,11 @@ export const auth = betterAuth({
   database: prismaAdapter(dbClient.main, {
     provider: "postgresql",
   }),
+  advanced: {
+    database: {
+      generateId: false // tell better auth not to generate ids
+    }
+  },
   // baseURL: "http://localhost:8000",
   basePath: "/api/v1/auth",
   appName: APP_NAME,
@@ -189,6 +194,9 @@ export const auth = betterAuth({
               type: "string",
               defaultValue: "Starter",
             },
+            updatedAt: {
+              type: "date",
+            }
           },
         },
         member: {
@@ -196,6 +204,17 @@ export const auth = betterAuth({
           // fields: {
           //   role: "roleId" //one role per membership per organization
           // }
+          additionalFields: {
+            roleId:  {
+              type: "string"
+            },
+            metadata: {
+              type: "string"
+            },
+            updatedAt: {
+              type: "date",
+            }
+          }
         },
         // team: {
         //   modelName: "Branch",
@@ -246,11 +265,24 @@ export const auth = betterAuth({
   ],
   user: {
     modelName: "User",
+    fields: {
+      // name: "fullName",
+    },
     additionalFields: {
       metadata: {
         type: "json",
         required: false,
       },
+      isActive: {
+        type: "boolean"
+      },
+      phone: {
+        type: "string"
+      },
+      deletedAt: {
+        type: "date"
+      },
+
     },
     changeEmail: {
       enabled: true,
@@ -329,7 +361,7 @@ export const auth = betterAuth({
   },
 
   verification: {
-    modelName: "Verificat'ion",
+    modelName: "Verification",
     disableCleanup: false,
     storeIdentifier: "hashed",
   },

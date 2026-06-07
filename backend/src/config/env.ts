@@ -15,6 +15,7 @@ if (env === "development" || env === "test") {
       import.meta.url,
       `../../.env.${process.env.NODE_ENV}`,
     ),
+    override: true,
   });
 }
 
