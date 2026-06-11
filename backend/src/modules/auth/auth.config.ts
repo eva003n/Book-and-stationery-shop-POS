@@ -101,7 +101,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     disableSignUp: false,
-    requireEmailVerification: true,
+    requireEmailVerification: false,
     emailVerification: {
       sendVerificationEmail: async ({ user, url }: { user: any; url: any }) => {
         sendTransactionalEmail({
