@@ -1,5 +1,5 @@
 import { Redis, type RedisOptions } from "ioredis";
-import { APP_NAME, NODE_ENV, REDIS_URL } from "./env.js";
+import { APP_NAME, NODE_ENV, REDIS_PASSWORD, REDIS_URL } from "./env.js";
 import { logger } from "better-auth";
 
 const isProduction = NODE_ENV === "production"
@@ -28,6 +28,7 @@ const isProduction = NODE_ENV === "production"
   ...(isProduction
     ? {
         tls: {},
+        password: REDIS_PASSWORD
       }
     : {}),
 
@@ -64,4 +65,15 @@ export function createRedisClient(name: string) {
   });
 
   return client;
+}
+
+const destroyRedisClient = async(client: Redis) => {
+
+  return client.quit()
+}
+
+const redisFactory = {
+  create: createRedisClient,
+  destruy: destroyRedisClient
+
 }
