@@ -21,7 +21,7 @@ export const getTenantClient = (schemaName: string ) => {
       query: {
         $allOperations: async ({ args, query }) => {
           await client.$executeRawUnsafe(
-            `SET search_path TO "${schemaName}", public`,
+            `SET search_path TO "${schemaName}"`,
           );
           return query(args);
         },
