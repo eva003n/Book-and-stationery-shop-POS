@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["public"]
+  schemas  = ["public", "auth"]
 }
 
 model User {
@@ -47,7 +47,7 @@ model Account {
 
   @@index([userId], map: "idx_accounts_user_id")
   @@map("accounts")
-  @@schema("public")
+  @@schema("auth")
 }
 
 model Organization {
@@ -68,7 +68,8 @@ model Organization {
   activeSessions Session[]    @relation("SessionActiveOrganization")
 
   @@map("organizations")
-  @@schema("public")
+  @@schema("auth")
+  
 }
 
 model Member {
@@ -85,7 +86,8 @@ model Member {
   user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("members")
-  @@schema("public")
+  @@schema("auth")
+
 }
 
 model Role {
@@ -143,7 +145,8 @@ model Invitation {
   @@index([organizationId], map: "idx_invitations_organization_id")
   @@index([status], map: "idx_invitations_status")
   @@map("invitations")
-  @@schema("public")
+  @@schema("auth")
+  
 }
 
 model Session {
@@ -164,7 +167,8 @@ model Session {
   @@index([expiresAt], map: "idx_sessions_expires_at")
   @@index([userId], map: "idx_sessions_user_id")
   @@map("sessions")
-  @@schema("public")
+  @@schema("auth")
+  
 }
 
 model Verification {
@@ -178,5 +182,6 @@ model Verification {
   @@index([expiresAt], map: "idx_verifications_expires_at")
   @@index([identifier], map: "idx_verifications_identifier")
   @@map("verifications")
-  @@schema("public")
+  @@schema("auth")
+  
 }
