@@ -425,7 +425,12 @@ export const requirePermission = (perm: Permission) =>
 ## 4. Database Design
 Since this is a multi-tenant archhitecture each tenant(shop owner/ merchant) gets their own schema(multi-schema strategy for isolation) but they share the same database. The reason for this strategy and not the others is, the POS requires strong data isolation, be cost effective and scalability concerns
 
-### 4.1 Core Schema (PostgreSQL — per-tenant schema)
+### 4.1 Schema organization
+Each database schema will have its own single responsibility as listed below
+- public/core - SaaS operational data (subscriptions, billing, settings, features).
+- auth - Identity and access management, Identity, authentication, authorization, memberships, invitations, organizations (managed by Better Auth).
+- tenant - Each tenant's business data.
+- shared - Global reference data used by all tenants eg publishers author genres etc
 
 ```sql
 --- uuid geeneration
