@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -5,183 +6,136 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  schemas  = ["public", "auth"]
+  schemas  = ["public", "auth", "shared"]
 }
 
 model User {
-  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String       @db.VarChar(100)
-  email          String       @unique @db.VarChar(150)
-  emailVerified Boolean      @default(false) @map("email_verified")
-  phone          String?      @unique @db.VarChar(20)
-  password       String?      @db.VarChar(255)
-  metadata       Json?        @default("{}")
-  isActive       Boolean      @default(true) @map("is_active")
-  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
-  deletedAt      DateTime?    @map("deleted_at") @db.Timestamptz(6)
-  accounts       Account[]
-  invitations    Invitation[]
-  members        Member[]
-  sessions       Session[]
+  id            String       @id
+  name          String
+  email         String
+  emailVerified Boolean      @default(false)
+  image         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  metadata      Json?
+  isActive      Boolean?
+  phone         String?
+  deletedAt     DateTime?
+  accounts      Account[]
+  members       Member[]
+  invitations   Invitation[]
 
+  @@unique([email])
   @@map("users")
-  @@schema("public")
+  @@schema("auth")
+
 }
 
 model Account {
-  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId                String    @map("user_id") @db.Uuid
-  accountId             String    @unique @map("account_id")
-  providerId            String    @map("provider_id")
-  accessToken           String?   @map("access_token")
-  refreshToken          String?   @map("refresh_token")
-  accessTokenExpiresAt  DateTime? @map("access_token_expires_at") @db.Timestamp(6)
-  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at") @db.Timestamp(6)
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
   scope                 String?
-  idToken               String?   @map("id_token")
   password              String?
-  createdAt             DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt             DateTime  @default(now()) @map("updated_at") @db.Timestamp(6)
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  @@index([userId], map: "idx_accounts_user_id")
+  @@index([userId])
   @@map("accounts")
   @@schema("auth")
+
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verifications")
+  @@schema("auth")
+
 }
 
 model Organization {
-  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String       @db.VarChar(100)
-  email          String       @unique @db.VarChar(200)
-  kraPin         String?      @unique @map("kra_pin") @db.VarChar(11)
-  mpesaShortCode Int?         @map("mpesa_short_code")
-  consumerKey    String?      @map("consumer_key")
-  consumerSecret String?      @map("consumer_secret")
-  schemaName     String       @unique @map("schema_name") @db.VarChar(63)
-  plan           String       @default("starter") @db.VarChar(50)
-  metaData       Json?        @default("{}") @map("meta_data")
-  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
-  invitations    Invitation[]
+  id             String       @id
+  name           String
+  schemaName     String
+  logo           String?
+  createdAt      DateTime
+  metadata       String?
+  email          String
+  kraPin         String
+  mpesaShortcode Int
+  consumerKey    String
+  consumerSecret String
+  plan           String?      @default("Starter")
+  updatedAt      DateTime?
   members        Member[]
-  activeSessions Session[]    @relation("SessionActiveOrganization")
+  invitations    Invitation[]
 
+  @@unique([schemaName])
   @@map("organizations")
   @@schema("auth")
-  
+
 }
 
 model Member {
-  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String?       @map("organization_id") @db.Uuid
-  userId         String?       @map("user_id") @db.Uuid
-  metaData       Json?         @default("{}") @map("meta_data")
-  role           String        @default("member")
-  roleId         String?       @map("role_id") @db.Uuid
-  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
-  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  roleRecord     Role?         @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  user           User?         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @default("member")
+  createdAt      DateTime
+  roleId         String?
+  metadata       String?
+  updatedAt      DateTime?
 
+  @@index([organizationId])
+  @@index([userId])
   @@map("members")
   @@schema("auth")
 
 }
 
-model Role {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name            String           @default("member") @db.VarChar(50)
-  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
-  members         Member[]
-  rolePermissions RolePermission[]
-
-  @@map("roles")
-  @@schema("public")
-}
-
-model Permission {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  action          String           @db.VarChar(50)
-  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
-  rolePermissions RolePermission[]
-
-  @@map("permissions")
-  @@schema("public")
-}
-
-model RolePermission {
-  roleId       String     @map("role_id") @db.Uuid
-  permissionId String     @map("permission_id") @db.Uuid
-  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([roleId, permissionId])
-  @@map("role_permissions")
-  @@schema("public")
-}
-
-/// This table contains a SQL check constraint for invitation status.
 model Invitation {
-  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  organizationId String       @map("organization_id") @db.Uuid
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   email          String
-  role           String
+  role           String?
   status         String       @default("pending")
-  expiresAt      DateTime     @map("expires_at") @db.Timestamptz(6)
-  inviterId      String       @map("inviter_id") @db.Uuid
-  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
-  inviter        User         @relation(fields: [inviterId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  expiresAt      DateTime
+  createdAt      DateTime     @default(now())
+  inviterId      String
+  user           User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
 
-  @@index([email], map: "idx_invitations_email")
-  @@index([inviterId], map: "idx_invitations_inviter_id")
-  @@index([organizationId], map: "idx_invitations_organization_id")
-  @@index([status], map: "idx_invitations_status")
+  @@index([organizationId])
+  @@index([email])
   @@map("invitations")
   @@schema("auth")
-  
+
 }
 
-model Session {
-  id                   String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId               String        @map("user_id") @db.Uuid
-  token                String        @unique
-  expiresAt            DateTime      @map("expires_at") @db.Timestamptz(6)
-  ipAddress            String?       @map("ip_address")
-  userAgent            String?       @map("user_agent")
-  activeOrganizationId String?       @map("active_organization_id") @db.Uuid
-  schemaName           String?       @map("schema_name") @db.VarChar(63)
-  createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt            DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
-  activeOrganization   Organization? @relation("SessionActiveOrganization", fields: [activeOrganizationId], references: [id], onUpdate: NoAction)
-  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model Jwks {
+  id         String    @id
+  publicKey  String
+  privateKey String
+  createdAt  DateTime
+  expiresAt  DateTime?
 
-  @@index([activeOrganizationId], map: "idx_sessions_active_organization_id")
-  @@index([expiresAt], map: "idx_sessions_expires_at")
-  @@index([userId], map: "idx_sessions_user_id")
-  @@map("sessions")
+  @@map("jwks")
   @@schema("auth")
-  
-}
 
-model Verification {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  identifier String
-  value      String
-  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  @@index([expiresAt], map: "idx_verifications_expires_at")
-  @@index([identifier], map: "idx_verifications_identifier")
-  @@map("verifications")
-  @@schema("auth")
-  
 }

@@ -84,7 +84,6 @@ export const envVarSchema = z.object({
   LOGTAIL_SOURCE_TOKEN: z.string().optional(),
   LOGTAIL_INGESTION_HOST: z.string().optional(),
   DATABASE_URL: z.url(),
-  REDIS_PASSWORD: z.string(),
   REDIS_URL: z.string().url(),
   API_DOC_URI: z.string().url(),
   RESEND_API_KEY: z.string().min(1),
